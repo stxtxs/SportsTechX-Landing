@@ -11,7 +11,7 @@ import { Providers } from './providers';
  * One origin constant. It was previously repeated in layout.tsx, sitemap.ts and
  * robots.ts with no shared source.
  */
-export const SITE_URL = 'https://sportstechx.com';
+export const SITE_URL = 'https://www.sportstechx.com';
 
 const TITLE = 'SportsTechX — Your Insider Access to Sports Tech & Venture';
 const DESCRIPTION =

@@ -242,7 +242,7 @@ export const solutions = {
       cta: 'EXPLORE MEMBERSHIP',
       // TEMPORARY host, like the STX one — restore https://joinplaymakers.co
       // when Playmakers is back on its own domain.
-      ctaHref: 'https://playmakers-omega.vercel.app/',
+      ctaHref: 'https://www.playmakers.sportstechx.com/',
       testimonialsLabel: 'PLAYMAKERS TESTIMONIALS',
       testimonials: playmakersTestimonials,
       features: [
@@ -283,7 +283,7 @@ export const solutions = {
       blurb:
         'Find the right investors, benchmark your company and sharpen your pitch with the SportsTechX intelligence layer.',
       cta: 'TRY ATLAS RAISE',
-      ctaHref: 'https://atlas.sportstechx.com',
+      ctaHref: 'https://www.atlas.sportstechx.com',
       cta2: { label: 'BOOK A CALL', href: 'https://cal.com/khyati/sportstechx' },
       testimonialsLabel: 'ATLAS TESTIMONIALS',
       testimonials: [testimonial, testimonial, testimonial, testimonial],
@@ -327,7 +327,7 @@ export const solutions = {
       blurb:
         'Find relevant deals, assess companies and strengthen your due diligence with SportsTechX market data and analysis.',
       cta: 'TRY ATLAS SCOUT',
-      ctaHref: 'https://atlas.sportstechx.com/',
+      ctaHref: 'https://www.atlas.sportstechx.com/',
       cta2: { label: 'BOOK A CALL', href: 'https://cal.com/khyati/sportstechx' },
       testimonialsLabel: 'ATLAS TESTIMONIALS',
       testimonials: [testimonial, testimonial, testimonial, testimonial],
@@ -415,7 +415,7 @@ export const media = {
       // read "Football Tech Report 2006" — a typo for the 2025 edition.
       title: 'Football Tech Report 2025',
       image: img198f122078d1,
-      href: 'https://atlas.sportstechx.com/reports',
+      href: 'https://www.atlas.sportstechx.com/reports',
     },
     {
       category: 'EVENTS',
@@ -424,7 +424,7 @@ export const media = {
       image: imgdd889ac2c460,
       // Atlas events page. This was '/#events', an anchor that does not
       // exist on this page, so the card went nowhere.
-      href: 'https://atlas.sportstechx.com/events',
+      href: 'https://www.atlas.sportstechx.com/events',
     },
   ] as MediaItem[]),
 };
@@ -467,11 +467,11 @@ export const footer = {
     {
       title: 'Products',
       links: [
-        { label: 'Playmakers', href: 'https://playmakers-omega.vercel.app/' },
+        { label: 'Playmakers', href: 'https://www.playmakers.sportstechx.com/' },
         // The Investors Circle membership page, distinct from the Playmakers
         // landing above.
         { label: 'Investors Circle', href: 'https://joinplaymakers.co' },
-        { label: 'Atlas', href: 'https://atlas.sportstechx.com' },
+        { label: 'Atlas', href: 'https://www.atlas.sportstechx.com' },
       ],
     },
     {
@@ -480,8 +480,8 @@ export const footer = {
         { label: 'Newsletter', href: 'https://newsletter.sportstechx.com' },
         { label: 'Podcast', href: 'https://creators.spotify.com/pod/profile/sportstechx/' },
         // The hub, not atlas.sportstechx.com/reports — that redirects to /login.
-        { label: 'Reports', href: 'https://atlas.sportstechx.com/reports' },
-        { label: 'Events', href: 'https://atlas.sportstechx.com/events' },
+        { label: 'Reports', href: 'https://www.atlas.sportstechx.com/reports' },
+        { label: 'Events', href: 'https://www.atlas.sportstechx.com/events' },
       ],
     },
     {
@@ -500,7 +500,7 @@ export const footer = {
     { label: 'Terms of Service', href: '/terms-of-service' },
     // The Playmakers site's own terms. This used to point at /terms-of-service,
     // which is SportsTechX's terms, not the membership ones.
-    { label: 'Playmakers Membership Terms', href: 'https://playmakers-omega.vercel.app/terms' },
+    { label: 'Playmakers Membership Terms', href: 'https://www.playmakers.sportstechx.com/terms' },
     { label: 'Imprint', href: '/imprint' },
   ],
 };
