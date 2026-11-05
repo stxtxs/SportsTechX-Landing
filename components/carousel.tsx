@@ -238,7 +238,14 @@ export function Carousel({
         tabIndex={0}
         className={cn(
           'flex overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
-          looping ? 'overscroll-x-contain' : 'snap-x snap-mandatory scroll-smooth',
+          // A continuous drift rewrites scrollLeft every frame, so snap would keep
+          // yanking it back. A stepping rail (autoAdvance) moves one view at a time,
+          // so it snaps too: a phone swipe lands on a whole card, never half-way.
+          // No CSS scroll-smooth while looping: the wrap jump must be instant;
+          // page() passes behavior:'smooth' itself.
+          looping && autoScroll ? 'overscroll-x-contain'
+            : looping ? 'snap-x snap-mandatory overscroll-x-contain'
+            : 'snap-x snap-mandatory scroll-smooth',
           // Static but still an auto-scroll rail: everything is visible, so
           // centre it rather than leaving it hugging the left edge.
           autoScroll && !looping && 'justify-center',

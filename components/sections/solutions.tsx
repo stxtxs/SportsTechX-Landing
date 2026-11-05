@@ -381,6 +381,7 @@ function SolutionBlock({
             pageBy={1}
             autoAdvance={6000}
             alwaysLoop
+            className="card-carousel"
             trackClassName="gap-0"
             arrowClassName={cn('card-arrow', dark ? 'text-white' : 'text-[#606060]')}
           >
@@ -392,7 +393,9 @@ function SolutionBlock({
                 // justify-between pins the avatar/name chip to the bottom of the
                 // (equal-height) card, so it sits at ONE fixed position regardless
                 // of quote length — a short quote just leaves a gap above the chip.
-                className="flex w-full shrink-0 snap-start flex-col items-center justify-between text-center lg:w-1/2 lg:px-8"
+                // Below lg the chip follows the quote directly: pinning it to the
+                // bottom of an equal-height slide left a big hole under short quotes.
+                className="flex w-full shrink-0 snap-start flex-col items-center justify-start text-center lg:w-1/2 lg:justify-between lg:px-8"
               >
                 <blockquote
                   className={cn(
