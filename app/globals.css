@@ -1262,6 +1262,14 @@
     font-size: max(13px, calc(14 * var(--k)));
     line-height: calc(20 / 14);
   }
+  /* The copy is an inner span carrying its own text-body size and medium
+   * weight, so the row's 14 never reached it (it stayed 15/500, dense on green).
+   * Inherit the row's size and drop to regular weight at this width. */
+  .card-use > span:last-child {
+    font-size: inherit;
+    line-height: inherit;
+    font-weight: 400;
+  }
   .card-bullet {
     width: calc(9 * var(--k));
     height: calc(9 * var(--k));
