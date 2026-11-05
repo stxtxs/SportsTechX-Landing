@@ -26,8 +26,6 @@ const VARS: Record<string, CSSProperties> = {
   playmakers: {
     '--panel-y': 65.47,
     '--panel-h': 478.45,
-    '--tag-x': 25,
-    '--tag-y': 24.53,
     '--text-b': 99.5,
     '--mark-w': 268.049,
     '--mark-h': 35.0,
@@ -52,8 +50,6 @@ const VARS: Record<string, CSSProperties> = {
   atlas: {
     '--panel-y': 67.29,
     '--panel-h': 491.71,
-    '--tag-x': 28,
-    '--tag-y': 25.71,
     '--text-b': 75,
     '--mark-w': 251.363,
     '--mark-h': 85.925,
@@ -73,23 +69,74 @@ const VARS: Record<string, CSSProperties> = {
   } as CSSProperties,
 };
 
+type Sector = (typeof solutions.sectors)[number];
+
+/** The role and need that show a given card, for links that name a card. */
+function findCard(cardId: string): { sector: string; need: number } | null {
+  for (const s of solutions.sectors) {
+    const need = s.needs.findIndex((n) => n.card === cardId);
+    if (need >= 0) return { sector: s.id, need };
+  }
+  return null;
+}
+
+/** The pill used for every selector button. Active is pink, inactive navy. */
+function pillClass(active: boolean) {
+  return cn(
+    'tracked inline-flex min-h-11 items-center justify-center rounded-full px-6 font-mono text-[13px] whitespace-nowrap text-white lg:text-label',
+    // Hover and press match the hero CTAs: a slight grow on hover, a quicker
+    // dip on press. Tailwind v4 puts scale-* on the `scale` property, so the
+    // transition names `scale`, not `transform`. Only the movement waits on
+    // prefers-reduced-motion; the colour change always lands.
+    'transition-[background-color,scale,box-shadow] duration-200 ease-out active:duration-[80ms]',
+    'motion-safe:hover:scale-105 motion-safe:active:scale-95',
+    active
+      ? 'bg-accent-2 shadow-cta lg:bg-linear-to-r lg:from-[#f21d63] lg:to-[#ed1a5e]'
+      : // The unselected navy goes black on hover, as the hero's buttons do.
+        'bg-slate hover:bg-black hover:shadow-cta active:bg-black'
+  );
+}
+
+const LABEL = 'font-sans text-[15px] leading-[44px] font-medium text-heading/70 uppercase lg:text-card-title';
+
+/** The width every need button holds to: the "Fundraising & Intelligence" label. */
+const SIZER = solutions.sectors[0].needs[0].label;
+
 export function Solutions({
   testimonials,
   previews,
 }: {
   /** CMS quotes per solution card, keyed by card id. */
   testimonials?: Partial<Record<string, Testimonial[]>>;
-  /** Card preview panels, POSITIONAL: [0] Playmakers, [1] Atlas. */
+  /** CMS card preview panels; each card names its slot (`previewSlot`). */
   previews?: SiteItem[];
 }) {
-  const [sector, setSector] = useState(solutions.sectors[0].id);
+  const [sectorId, setSectorId] = useState<string>(solutions.sectors[0].id);
+  const [need, setNeed] = useState(0);
+  const sector: Sector = solutions.sectors.find((s) => s.id === sectorId) ?? solutions.sectors[0];
+  const activeCard = sector.needs[need]?.card ?? sector.needs[0].card;
 
-  // The nav's Solutions dropdown (Atlas/Playmakers/Operators/Investors) sets
-  // the toggle as well as scrolling here. Ignore any id the toggle doesn't have.
+  const pickSector = (id: string) => {
+    setSectorId(id);
+    // A new role always starts on its first need.
+    setNeed(0);
+  };
+
+  // Nav, footer and hero links send a role id ("founders") or a card id
+  // ("playmakers") as they scroll here; either opens the matching view.
   useEffect(() => {
     const onSector = (e: Event) => {
       const id = (e as CustomEvent<string>).detail;
-      if (solutions.sectors.some((s) => s.id === id)) setSector(id);
+      if (solutions.sectors.some((s) => s.id === id)) {
+        setSectorId(id);
+        setNeed(0);
+        return;
+      }
+      const found = findCard(id);
+      if (found) {
+        setSectorId(found.sector);
+        setNeed(found.need);
+      }
     };
     window.addEventListener('stx:sector', onSector);
     return () => window.removeEventListener('stx:sector', onSector);
@@ -99,55 +146,78 @@ export function Solutions({
     <section id="solutions" data-rise className="section-y bg-surface">
       <div className="container-page">
         <SectionIntro title={solutions.title} tracking="tracking-[0.05em]">
-          <div className="mt-1 flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-5">
-            <p className="font-sans text-[18px] leading-[27px] font-medium text-heading/70 uppercase lg:text-card-title lg:leading-[1.5]">
-              {solutions.selectorLabel}
-            </p>
-            <div className="flex gap-[13px] lg:gap-5">
-              {solutions.sectors.map((s) => {
-                const active = s.id === sector;
-                return (
+          {/* Two rows on a shared two-column grid, so both rows' first buttons
+              start on the same line. Below sm the labels stack above. */}
+          <div className="mt-1 grid grid-cols-1 gap-x-6 gap-y-2 sm:grid-cols-[auto_1fr] sm:gap-y-4">
+            <p className={LABEL}>{solutions.selectorLabel}</p>
+            <div className="flex flex-wrap gap-3 lg:gap-4">
+              {solutions.sectors.map((s) => (
+                <button
+                  key={s.id}
+                  type="button"
+                  onClick={() => pickSector(s.id)}
+                  aria-pressed={s.id === sector.id}
+                  className={pillClass(s.id === sector.id)}
+                >
+                  {s.label}
+                </button>
+              ))}
+            </div>
+
+            <p className={cn(LABEL, 'mt-3 sm:mt-0')}>{solutions.needLabel}</p>
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-2 lg:gap-x-4">
+              {sector.needs.map((n, i) => (
+                <Fragment key={n.card}>
+                  {i > 0 && <span className={cn(LABEL, 'px-1')}>or</span>}
                   <button
-                    key={s.id}
-                    type="button"
-                    onClick={() => setSector(s.id)}
-                    aria-pressed={active}
-                    className={cn(
-                      'tracked inline-flex h-[35px] w-[174px] items-center justify-center gap-2.5 rounded-full font-mono text-[14px] text-white transition-colors lg:h-[42px] lg:w-[160px] lg:text-label',
-                      active
-                        // Flat pink on mobile; the gradient and the dot are
-                        // desktop-only in the artboard.
-                        ? 'bg-accent-2 lg:bg-linear-to-r lg:from-[#f21d63] lg:to-[#ed1a5e]'
-                        : 'bg-slate hover:brightness-110'
-                    )}
-                  >
-                    {active && <span className="hidden size-[13px] rounded-full bg-white lg:block" />}
-                    {s.label}
+                      type="button"
+                      onClick={() => setNeed(i)}
+                      aria-pressed={i === need}
+                      className={cn(pillClass(i === need), 'grid')}
+                    >
+                      {/* The visible label and an invisible copy of the
+                          longest short label share one cell, so the three short
+                          needs hold one width and longer ones grow to fit. */}
+                      <span className="col-start-1 row-start-1">{n.label}</span>
+                      <span aria-hidden className="invisible col-start-1 row-start-1">
+                        {SIZER}
+                      </span>
                   </button>
-                );
-              })}
+                </Fragment>
+              ))}
             </div>
           </div>
         </SectionIntro>
 
-        {/* solutions-rig is the container --k measures against, and the two
-            cards overlap by 116 artboard units inside it. */}
+        {/* Every card sits in the same grid cell and stretches to fill it, so all
+            four are the height of the tallest and switching never moves the
+            page. Only the selected one shows; the rest are inert and out of
+            the reading order. */}
         {/* Full bleed on mobile: the artboard's cards are the full 402 wide,
             which also makes 100cqw the artboard width for --k. */}
-        <div className="solutions-rig mx-[calc(var(--gutter)*-1)] mt-[52px] flex flex-col lg:mx-0">
-          {solutions.cards
-            .filter((card) => card.sectors.includes(sector))
-            .map((card) => (
-              <SolutionBlock
+        {/* grid-cols-1 is minmax(0, 1fr): without the 0 floor the column grows to
+            the widest card's content and the page scrolls sideways on phones. */}
+        <div className="solutions-rig mx-[calc(var(--gutter)*-1)] mt-10 grid grid-cols-1 lg:mx-0 lg:mt-[52px]">
+          {solutions.cards.map((card) => {
+            const shown = card.id === activeCard;
+            return (
+              <div
                 key={card.id}
-                card={card}
-                testimonials={testimonials?.[card.id]}
-                // Indexed against the UNFILTERED list: the sector filter can drop
-                // the first card, and a filtered index would then hand the Atlas
-                // card the Playmakers preview.
-                preview={previews?.[solutions.cards.indexOf(card)]}
-              />
-            ))}
+                inert={!shown}
+                aria-hidden={!shown}
+                className={cn(
+                  'col-start-1 row-start-1 flex flex-col transition-[opacity,translate] duration-[250ms] ease-out motion-reduce:transition-none',
+                  shown ? 'opacity-100' : 'pointer-events-none translate-y-2 opacity-0'
+                )}
+              >
+                <SolutionBlock
+                  card={card}
+                  testimonials={testimonials?.[card.id]}
+                  preview={card.previewSlot === undefined ? undefined : previews?.[card.previewSlot]}
+                />
+              </div>
+            );
+          })}
         </div>
       </div>
     </section>
@@ -176,7 +246,9 @@ function SolutionBlock({
     <article
       style={VARS[card.variant]}
       className={cn(
-        'solution-card relative overflow-hidden rounded-[20px] shadow-panel',
+        // flex-1 + flex column: every card is the height of the tallest, and
+        // the testimonials block takes up any spare height at the bottom.
+        'solution-card relative flex flex-1 flex-col overflow-hidden rounded-[20px] shadow-panel',
         dark
           ? 'noise [--noise-alpha:0.5] bg-linear-to-b from-card-dark-from to-card-dark-to'
           : 'bg-card-light'
@@ -201,9 +273,16 @@ function SolutionBlock({
           }
         >
           <span className="card-wordmark block">
-            {/* eslint-disable-next-line @next/next/no-img-element -- a flat
-                artboard vector; next/image would only add a request wrapper. */}
-            <img src={`/vectors/wordmark-${card.variant}.svg`} alt={card.eyebrow} className="h-full w-auto" />
+            {card.wordmarkText ? (
+              // No vector for this product yet: set the name in the display face.
+              <span className="card-wordmark-text tracked block font-display leading-none text-white">
+                {card.wordmarkText}
+              </span>
+            ) : (
+              /* eslint-disable-next-line @next/next/no-img-element -- a flat
+                 artboard vector; next/image would only add a request wrapper. */
+              <img src={`/vectors/wordmark-${card.variant}.svg`} alt={card.eyebrow} className="h-full w-auto" />
+            )}
             {/* Italic product tag over the "s", matching the Atlas dashboard
                 sidebar — RAISE / SCOUT in the product colour. */}
             {card.tier && (
@@ -289,8 +368,7 @@ function SolutionBlock({
               : 'border-[#bcecd4] bg-white/85 dark:border-white/50 dark:bg-[#d6dced]'
           )}
         >
-          {/* The artboard leaves this panel empty; an uploaded preview fills it.
-              Behind the badge, which keeps its own absolute position. */}
+          {/* The artboard leaves this panel empty; an uploaded preview fills it. */}
           {preview?.url && (
             <BlurImage
               src={preview.url}
@@ -300,16 +378,6 @@ function SolutionBlock({
               className="object-cover"
             />
           )}
-          <span
-            className={cn(
-              'card-tag tracked absolute inline-flex items-center border font-mono-alt whitespace-nowrap',
-              dark
-                ? 'border-accent bg-accent/[0.17] text-white'
-                : 'border-accent bg-accent/[0.09] text-accent dark:text-white'
-            )}
-          >
-            {card.badge}
-          </span>
         </div>
 
       </div>
@@ -361,19 +429,19 @@ function SolutionBlock({
       </div>
 
       {/* ---------- testimonials ---------- */}
-      <div className="card-stories relative">
+      <div className="card-stories relative flex-1">
         <p
           className={cn(
             'card-stories-label tracked text-center text-label',
             dark ? 'font-mono text-[#e6e6ff]/70' : 'font-mono text-navy/85'
           )}
         >
-          {card.testimonialsLabel}
+          {solutions.testimonialsLabel}
         </p>
 
         <div className="card-strip relative mt-6">
           <Carousel
-            label={card.testimonialsLabel}
+            label={`${card.eyebrow} testimonials`}
             // Two quotes to a view, so a press moves exactly two. Steps forward
             // one view every 6s (not a continuous drift) and loops, so it reads
             // like the arrows firing on a timer; the arrows always work too. No

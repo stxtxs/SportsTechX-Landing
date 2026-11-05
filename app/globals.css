@@ -409,7 +409,7 @@
 /* Keeps the hero copy dominant over the orbits.
  *
  * The artboard needs nothing like this: its pills sit at y=737 while the content
- * ends at y=696, so they simply never overlap. Ours orbit a full 360deg and do
+ * ends at y=696, so they simply never overlap. Ours orbit a full 360deg and could
  * pass behind the headline, so a soft plate of the hero's own colour rides with
  * the text block and mutes whatever is behind it. Tied to the text rather than
  * to a fixed height, so it follows the block as the type rescales.
@@ -427,96 +427,10 @@
   );
 }
 
-/* Category pills travel along their orbit.
- *
- * `.orbit` is a square box the size of the motif, centred on the motif centre,
- * and it is what rotates. It has to have real dimensions: an earlier version
- * used a zero-size anchor, and `left: <percent>` against a zero-width parent
- * resolves to 0, so every pill piled up in the middle.
- *
- * `.orbit-pill` sits at the box centre plus the pill's radius along +x, and
- * counter-rotates so the label stays upright. Both animations share --dur and
- * --delay so they stay locked together frame for frame.
- *
- * --radius is expressed as a share of the box WIDTH (= the motif diameter), so
- * a pill at r% of the motif radius is r/2 % here.
- */
-/* The live angle, as one inheriting value.
- *
- * This was two animations — the ring turning +angle and the pill turning
- * -angle, exact inverses on the same duration. The maths cancelled, but they
- * were two clocks on two composited layers (will-change on both) that had to
- * agree frame for frame; when one started a beat late the cancellation broke
- * and the label tilted, which is what the design team saw.
- *
- * Now only --live animates, on the ring. The pill inherits it and negates it,
- * so there is one clock and drift is not expressible. The cost is that a
- * custom-property animation runs on the main thread rather than the
- * compositor — six small elements, and it halves the layer count. */
-@property --live {
-  syntax: "<angle>";
-  inherits: true;
-  initial-value: 0deg;
-}
-
-@keyframes orbit-live {
-  from { --live: var(--angle); }
-  to   { --live: calc(var(--angle) + var(--sweep)); }
-}
-
-/* Category pills travel along their orbit.
- *
- * `.orbit` is a square box the size of the motif, centred on the motif centre,
- * and it is what rotates. It has to have real dimensions: an earlier version
- * used a zero-size anchor, and `left: <percent>` against a zero-width parent
- * resolves to 0, so every pill piled up in the middle.
- *
- * `.orbit-pill` sits at the box centre plus the pill's radius along +x, and
- * counter-rotates so the label stays upright. Both animations share --dur so
- * they stay locked together frame for frame.
- *
- * The motif centre sits at ~94% of the hero's height, so only the UPPER half of
- * each circle is on screen — a full revolution parked every pill off-screen for
- * half its cycle. Instead each one sweeps 35deg inward from its artboard angle
- * and back (`alternate`), which keeps it inside the visible arc the whole time.
- * Sweeping inward rather than oscillating symmetrically matters: MEDIA has only
- * 6.6deg of room before -180 and INVESTORS 9.3deg before 0, so a centred swing
- * would have to be tiny for them.
- *
- * --radius is expressed as a share of the box WIDTH (= the motif diameter), so
- * a pill at r% of the motif radius is r/2 % here.
- */
-.orbit {
-  --angle: var(--a);
-  --radius: var(--r);
-  /* The resting frame, and what reduced-motion falls back to. */
-  --live: var(--angle);
-  position: absolute;
-  top: var(--motif-cy);
-  left: 50%;
-  height: calc(var(--motif-r) * 2);   /* the motif's diameter */
-  aspect-ratio: 1;
-  /* The box is large and sits over the CTAs — it must never eat a click. */
-  pointer-events: none;
-  transform: translate(-50%, -50%) rotate(var(--live));
-  animation: orbit-live var(--dur, 26s) ease-in-out infinite alternate;
-  will-change: transform;
-}
-
-.orbit-pill {
-  position: absolute;
-  top: 50%;
-  left: calc(50% + var(--radius));
-  pointer-events: auto;
-  /* No animation here on purpose: --live is inherited from the ring, so this
-   * negation is recomputed from the same value on the same frame. */
-  transform: translate(-50%, -50%) rotate(calc(-1 * var(--live)));
-}
-
 /* The two artboards give the motif different proportions — 858 across an
  * 852-tall mobile frame (radius 50.4% of the height) versus 1586 across 1004
  * on desktop (79%) — and they place the pills at different angles. Both the
- * motif and the orbit rigs read these, so they cannot drift apart. */
+ * motif and the orbiting pills (hero-orbits.tsx) read these. */
 .hero-frame {
   --motif-r: 50.4%;
   --motif-cy: 94%;
@@ -526,11 +440,6 @@
   .hero-frame {
     --motif-r: 79%;
     --motif-cy: 94.3%;
-  }
-
-  .orbit {
-    --angle: var(--a-lg);
-    --radius: var(--r-lg);
   }
 }
 
@@ -564,15 +473,6 @@
   .solution-card {
     border-radius: calc(20 * var(--k));
   }
-  .solution-card + .solution-card {
-    margin-top: calc(-116 * var(--k));
-  }
-  /* The upper card of an overlapping pair reserves the strip the lower card
-     slides up into (= the overlap amount). Position-based so whichever card is
-     on top gets the reserve — this used to be hardcoded into Playmakers' bottom. */
-  .solution-card:has(+ .solution-card) .card-stories {
-    padding-bottom: calc(116 * var(--k) + 18px);
-  }
 
   /* --- intro ------------------------------------------------------------ */
   .card-intro {
@@ -591,15 +491,6 @@
     /* An uploaded preview fills this panel; clip it to the asymmetric radius. */
     overflow: hidden;
   }
-  /* The tier pill belongs inside the preview panel, not above the headline. */
-  .card-tag {
-    left: calc(var(--tag-x) * var(--k));
-    top: calc(var(--tag-y) * var(--k));
-    height: calc(32 * var(--k));
-    padding-inline: calc(20 * var(--k));
-    border-radius: calc(7 * var(--k));
-    font-size: max(11px, calc(16 * var(--k)));
-  }
   /* Bottom-aligned against the panel, as drawn — the artboard leaves the top
    * third of this column empty. */
   .card-intro-text {
@@ -615,6 +506,10 @@
     position: relative;
     width: calc(var(--mark-w) * var(--k));
     height: calc(var(--mark-h) * var(--k));
+  }
+  /* A product with no wordmark vector sets its name to the mark's height. */
+  .card-wordmark-text {
+    font-size: calc(var(--mark-h) * 1.15 * var(--k));
   }
   .card-wordmark img {
     position: absolute;
@@ -938,11 +833,9 @@
     /* Holds the artboard's 247.81 so the bottom rule lands below the vertical
      * rules rather than being crossed by them when the copy runs short. */
     min-height: calc(247.81 * var(--k));
-    /* The artboard's 545/303/303/rest was three link columns. Four of them fit
-     * as equal tracks beside a narrower brand column, with a real gap for the
-     * rules to sit in: 450 + 4 gaps of 40 leaves 185 each. "Investors Circle"
-     * is the longest label and sets that floor. */
-    grid-template-columns: calc(450 * var(--k)) repeat(4, 1fr);
+    /* Three equal link columns (Solutions, Media, Company) beside a narrower
+     * brand column, with a real gap for the rules to sit in. */
+    grid-template-columns: calc(450 * var(--k)) repeat(3, 1fr);
     column-gap: calc(var(--footer-gap) * var(--k));
     row-gap: 0;
     --footer-gap: 40;
@@ -1159,13 +1052,6 @@
   .solution-card {
     border-radius: calc(10 * var(--k));
   }
-  .solution-card + .solution-card {
-    margin-top: calc(-44 * var(--k));
-  }
-  /* Mobile overlap is smaller (-44), so the upper card reserves that much. */
-  .solution-card:has(+ .solution-card) .card-stories {
-    padding-bottom: calc(44 * var(--k) + 18px);
-  }
 
   /* No min-height: the panel is the last thing in the block and the artboard
    * butts it straight up against the green band. A floor here just left a gap
@@ -1173,13 +1059,17 @@
   .card-intro {
     display: flex;
     flex-direction: column;
-    padding: calc(var(--m-top) * var(--k)) 0 0;
+    /* The photo now leads, flush to the card's top; the copy closes the block. */
+    padding: 0 0 calc(32 * var(--k));
   }
   .card-intro-text {
     padding-inline: calc(20 * var(--k));
   }
   .card-wordmark {
     height: calc(var(--m-mark) * var(--k));
+  }
+  .card-wordmark-text {
+    font-size: calc(var(--m-mark) * 1.15 * var(--k));
   }
   /* Mobile pass (Nov 2026): the artboard's 38 set every headline on four lines
    * and pushed the cards to ~2300 tall. 30 reads as a headline, not a wall. */
@@ -1203,21 +1093,14 @@
   }
   .card-ctas { margin-top: calc(9 * var(--k)); }
   .card-ctas .card-cta { margin-top: 0; }
-  /* Full width and below the copy — the artboard's "Demo" frame. */
+  /* Full width and above the copy (the selector brief), flush to the card's
+     top edge; the card's own rounded corners clip it. */
   .card-panel {
-    order: 1;
+    order: -1;
     width: 100%;
     height: calc(270 * var(--k));
-    margin-top: calc(32 * var(--k));
-    border-radius: calc(10 * var(--k));
-  }
-  .card-tag {
-    top: calc(20 * var(--k));
-    left: calc(20 * var(--k));
-    height: calc(23 * var(--k));
-    padding-inline: calc(20 * var(--k));
-    border-radius: calc(5 * var(--k));
-    font-size: max(10px, calc(12 * var(--k)));
+    margin-bottom: calc(28 * var(--k));
+    border-radius: 0;
   }
 
   /* No artboard floor: the band is as tall as its (now smaller) copy. */
@@ -1755,13 +1638,6 @@ html::-webkit-scrollbar-corner {
   --bg-next: #fff;
 }
 
-/* Nothing else moves while the page is being snapshotted — see the comment in
- * theme-toggle.tsx. The carousel drift watches the same attribute from JS. */
-:root[data-swapping] .orbit {
-  animation-play-state: paused;
-}
-
-
 /* The handler already bails out before starting a transition, but a reader can
  * flip the setting mid-flight. */
 @media (prefers-reduced-motion: reduce) {
@@ -1925,4 +1801,12 @@ html::-webkit-scrollbar-corner {
 .newsletter-dialog .footer-join-btn {
   height: 46px;
   font-size: 14px;
+}
+
+/* Stats band figures on phones: cap at 12.5vw so a figure as wide as
+ * "20,000+" stays on screen down to 320px. No effect from ~390px up. */
+@media (max-width: 767.98px) {
+  .stat-figure {
+    font-size: min(var(--text-stat), 12.5vw);
+  }
 }

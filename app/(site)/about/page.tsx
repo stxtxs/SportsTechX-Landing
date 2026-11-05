@@ -37,7 +37,7 @@ function People({ title, intro, people }: { title: string; intro?: string; peopl
         </p>
       )}
       {/* grid-rows-subgrid on the cards needs them to span real tracks here, so
-          each card claims four rows and siblings share them. */}
+          each card claims three rows and siblings share them. */}
       <div className="mt-8 grid grid-cols-1 gap-x-8 gap-y-12 sm:grid-cols-2 lg:mt-12 lg:grid-cols-3 xl:grid-cols-4">
         {people.map((p) => (
           <PersonCard key={p.name} person={p} />

@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 
 /**
  * The card that drops from SOLUTIONS, per the interactions board: 503x163,
- * radius 16, a 9% hairline and a 39px shadow at 8%, left-aligned with the nav
+ * radius 16, a 9% hairline and a 39px shadow at 8%, right-aligned with the nav
  * pill and 28 clear of it.
  *
  * It fades up rather than merely appearing — opacity 0 to 1 from 48px below,
@@ -20,7 +20,9 @@ export function NavMenu({ open }: { open: boolean }) {
   return (
     <div
       className={cn(
-        'absolute top-full left-0 z-10 pt-[28px]',
+        // Right-aligned with the nav pill: the pill is narrower than the card
+        // now (two links), so a left-aligned card ran off the screen's edge.
+        'absolute top-full right-0 z-10 pt-[28px]',
         open ? 'visible' : 'invisible delay-200'
       )}
     >

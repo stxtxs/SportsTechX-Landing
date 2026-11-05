@@ -69,7 +69,7 @@ export function NewsletterForm({ tone = 'footer', autoFocus }: { tone?: 'footer'
           autoFocus={autoFocus}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="you@company.com"
+          placeholder="Email address"
           className={cn(
             'footer-join-input min-w-0 flex-1 bg-transparent px-[18px] font-sans text-heading outline-none placeholder:text-fg-muted',
             tone === 'modal' ? 'h-12 text-base' : 'text-body-sm'
@@ -87,7 +87,7 @@ export function NewsletterForm({ tone = 'footer', autoFocus }: { tone?: 'footer'
           )}
         >
           <span className="transition-opacity duration-[80ms] ease-out group-active:opacity-70">
-            {status.kind === 'loading' ? '…' : 'JOIN'}
+            {status.kind === 'loading' ? '…' : 'SUBSCRIBE'}
           </span>
         </button>
       </form>

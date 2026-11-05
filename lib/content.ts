@@ -4,6 +4,7 @@
  */
 
 import type { StaticImageData } from 'next/image';
+import type { HeroPill } from '@/components/hero-orbits';
 
 /**
  * Images are either a build-time static import (everything decoded from the
@@ -51,43 +52,50 @@ export const nav = {
   links: [
     { label: 'SOLUTIONS', href: '/#solutions' },
     { label: 'MEDIA', href: '/#media' },
-    { label: 'ABOUT', href: '/about', newTab: true },
   ],
-  cta: { label: 'JOIN THE NEWSLETTER', href: 'https://newsletter.sportstechx.com' },
+  cta: { label: 'SUBSCRIBE', href: 'https://newsletter.sportstechx.com' },
 };
 
 export const hero = {
   headline: 'Your Insider Access To Sports Tech & Venture',
-  subhead: 'The leading people, deepest insights and\nactive capital shaping the future of sports',
+  subhead: 'Connecting the people, intelligence and\ncapital transforming the business of sports.',
   ctas: [
-    { label: 'FOR FOUNDERS', href: '/#solutions', variant: 'primary' as const },
-    { label: 'FOR INVESTORS', href: '/#solutions', variant: 'secondary' as const },
+    // `sector` preselects that role in the Solutions selector on the way down.
+    { label: 'FOR FOUNDERS', href: '/#solutions', sector: 'founders', variant: 'primary' as const },
+    { label: 'FOR INVESTORS', href: '/#solutions', sector: 'investors', variant: 'secondary' as const },
   ],
   /**
-   * Orbiting category pills. Icons are the design's own vectors, exported from
-   * Figma; `w`/`h` are each glyph's leaf size on the artboard and must stay
-   * explicit — the six are not a uniform set.
+   * Orbiting category pills, grouped by orbit (see components/hero-orbits.tsx).
+   * Icons are the design's own vectors, exported from Figma, except ATHLETES,
+   * FANS and CORPORATES, drawn to match. `w`/`h` are each glyph's size and must stay
+   * explicit — the set is not uniform. Order within an orbit is the order the
+   * pills follow one another round it.
    */
   pills: [
-    { label: 'LEAGUES', icon: '/icons/pill-leagues.svg', w: 14.375, h: 14.5, primary: false },
-    { label: 'TEAMS', icon: '/icons/pill-teams.svg', w: 10, h: 11, primary: false },
-    { label: 'MEDIA', icon: '/icons/pill-media.svg', w: 10, h: 10, primary: false },
-    { label: 'ATHLETES', icon: '/icons/pill-media.svg', w: 10, h: 10, primary: false },
-    { label: 'FOUNDERS', icon: '/icons/pill-founders.svg', w: 12, h: 12, primary: true },
-    { label: 'INVESTORS', icon: '/icons/pill-investors.svg', w: 14, h: 8, primary: true },
-  ],
+    // Orbit 1, innermost: core audiences.
+    { label: 'FOUNDERS', icon: '/icons/pill-founders.svg', w: 12, h: 12, orbit: 1 },
+    { label: 'INVESTORS', icon: '/icons/pill-investors.svg', w: 14, h: 8, orbit: 1 },
+    // Orbit 2, middle: sports ecosystem.
+    { label: 'TEAMS', icon: '/icons/pill-teams.svg', w: 10, h: 11, orbit: 2 },
+    { label: 'LEAGUES', icon: '/icons/pill-leagues.svg', w: 14.375, h: 14.5, orbit: 2 },
+    { label: 'ATHLETES', icon: '/icons/pill-athletes.svg', w: 11, h: 13, orbit: 2 },
+    { label: 'FANS', icon: '/icons/pill-fans.svg', w: 13, h: 11, orbit: 2 },
+    // Orbit 3, outermost: commercial ecosystem.
+    { label: 'MEDIA', icon: '/icons/pill-media.svg', w: 10, h: 10, orbit: 3 },
+    { label: 'CORPORATES', icon: '/icons/pill-corporates.svg', w: 11, h: 12, orbit: 3 },
+  ] satisfies HeroPill[],
 };
 
 export const stats = [
-  { value: '20K+', label: 'Community\nmembers' },
-  { value: '2,000+', label: 'Investors\ntracked' },
-  { value: '1,500+', label: 'Companies\nmapped' },
-  { value: '40+', label: 'Countries\nrepresented' },
+  { value: '10,000+', label: 'Companies\nTracked' },
+  { value: '2,500+', label: 'Investors\nMapped' },
+  { value: '$130B+', label: 'Deal Flow\nTracked' },
+  { value: '20,000+', label: 'Newsletter\nSubscribers' },
 ];
 
 export const trustedBy = {
   title: 'TRUSTED BY',
-  subtitle: 'founders, investors, sports organizations',
+  subtitle: 'founders, investors, sports organisations',
   /**
    * Eight partner headshots extracted from the design, used only until an
    * admin fills Site assets -> STX landing -> Carousel gallery. `logo` is the
@@ -126,7 +134,7 @@ export const playmakersTestimonials: Testimonial[] = [
     quote:
       '“I’ve built two companies without outside funding, so I know how much depends on the people around you. Playmakers gives me a circle of founders who understand the pressure without me having to explain it. When I ask for help, I get real answers and useful introductions, usually within hours.”',
     name: 'Sowbhagya Shetty',
-    role: 'Co-founder & CEO, Data Sports Group',
+    role: 'Co-Founder & CEO, Data Sports Group',
   },
   {
     quote:
@@ -138,7 +146,7 @@ export const playmakersTestimonials: Testimonial[] = [
     quote:
       '“Within just a few months, we’ve already seen concrete collaborations emerge with other Playmakers members. There’s so much high-quality innovation within the group, and we’re now bringing some of those solutions into how we operate at Füchse Berlin. That’s when you know a network is really working.”',
     name: 'Christopher Jahns',
-    role: 'Co-founder & CEO, XU Group',
+    role: 'Co-Founder & CEO, XU Group',
   },
   {
     quote:
@@ -156,10 +164,14 @@ export type SolutionCard = {
    * Two cards can share a variant — Atlas Raise and Atlas Scout are both 'atlas'.
    */
   variant: 'atlas' | 'playmakers';
-  /** Which of the sector buttons show this card. */
-  sectors: string[];
   eyebrow: string;
-  badge: string;
+  /**
+   * Text stand-in for the wordmark, for a product with no vector yet
+   * (Boardroom). When set, it replaces /vectors/wordmark-{variant}.svg.
+   */
+  wordmarkText?: string;
+  /** Which CMS card preview (Site assets) fills the photo panel, if any. */
+  previewSlot?: number;
   title: string;
   blurb: string;
   cta: string;
@@ -168,7 +180,7 @@ export type SolutionCard = {
   /** Optional secondary CTA beside the primary one (e.g. "Book a call"). */
   cta2?: { label: string; href: string };
   features: { title: string; points: string[] }[];
-  testimonialsLabel: string;
+  /** Quotes under the band. Every card has them: the cards share one template. */
   testimonials: Testimonial[];
   /**
    * Italic product tag on the wordmark, matching the Atlas dashboard sidebar
@@ -197,10 +209,10 @@ export const navMenu = [
   {
     label: 'BY PRODUCT',
     items: [
-      // Atlas spans both toggles (Raise on operator, Scout on investor); the
-      // generic link opens the operator view. Playmakers is an operator card.
-      { label: 'ATLAS', href: '/#solutions', initial: 'A', sector: 'founders' },
-      { label: 'PLAYMAKERS', href: '/#solutions', initial: 'P', sector: 'founders' },
+      // `sector` may also name a card: the Solutions selector then opens the
+      // role and need that show it. Atlas opens Atlas Raise (founder view).
+      { label: 'ATLAS', href: '/#solutions', initial: 'A', sector: 'atlas-raise' },
+      { label: 'PLAYMAKERS', href: '/#solutions', initial: 'P', sector: 'playmakers' },
     ],
   },
 ];
@@ -208,25 +220,36 @@ export const navMenu = [
 export const solutions = {
   title: 'SOLUTIONS',
   selectorLabel: 'I am a sports tech',
-  // Singular: the label above now reads into them — "I am a sports tech
-  // OPERATOR". The ids stay as they were; they key the cards' `sectors`.
+  needLabel: 'Looking for',
+  testimonialsLabel: 'TESTIMONIALS',
+  /**
+   * The stage selector: pick a role, then what you need; each need shows one
+   * card. Ids are what nav and footer links send (see SectorLink).
+   */
   sectors: [
-    { id: 'founders', label: 'FOUNDER' },
-    { id: 'investors', label: 'INVESTOR' },
+    {
+      id: 'founders',
+      label: 'FOUNDER',
+      needs: [
+        { label: 'FUNDRAISING & INTELLIGENCE', card: 'atlas-raise' },
+        { label: 'SCALING & NETWORKING', card: 'playmakers' },
+      ],
+    },
+    {
+      id: 'investors',
+      label: 'INVESTOR',
+      needs: [
+        { label: 'DEAL FLOW & INTELLIGENCE', card: 'atlas-scout' },
+        { label: 'CO-INVESTORS & PEER NETWORKING', card: 'boardroom' },
+      ],
+    },
   ],
-  // Toggle: OPERATOR shows Playmakers + Atlas Raise; INVESTOR shows Atlas Scout.
-  // Cards render in array order, so Playmakers sits above Atlas Raise on the
-  // operator view (its original position). Atlas Raise and Atlas Scout share the
-  // 'atlas' variant (same wordmark + feature icons + light styling); their
-  // RAISE/SCOUT tag and copy set them apart, matching the dashboard branding.
   cards: [
     {
       id: 'playmakers',
       variant: 'playmakers',
-      // An OPERATOR card, on top of Atlas Raise.
-      sectors: ['founders'],
       eyebrow: 'PLAYMAKERS',
-      badge: 'FOR SCALE-UP FOUNDERS',
+      previewSlot: 0,
       // This card shipped with Atlas's feature copy pasted into it — all nine
       // points were about pitch decks and investor pipelines. Replaced with the
       // Playmakers copy the team supplied. Sentence case and the ALL-CAPS CTA
@@ -243,31 +266,30 @@ export const solutions = {
       // TEMPORARY host, like the STX one — restore https://joinplaymakers.co
       // when Playmakers is back on its own domain.
       ctaHref: 'https://www.playmakers.sportstechx.com/',
-      testimonialsLabel: 'PLAYMAKERS TESTIMONIALS',
       testimonials: playmakersTestimonials,
       features: [
         {
           title: 'Your personal board\nof peer advisors',
           points: [
-            "Skip costly trial-and-error by learning from other founders who've been there",
-            'Scale faster with advice from leaders who have navigated complex growth',
-            'Stay mentally resilient with a circle that understands your journey',
+            'Skip costly mistakes. Learn from founders who’ve been there.',
+            'Scale faster with leaders who’ve navigated hypergrowth.',
+            'Stay resilient with peers who understand your journey.',
           ],
         },
         {
           title: 'Insider sports\nindustry network',
           points: [
-            'Join private membership events turning your peers into collaborators',
-            'Receive introductions that expand your network among top leaders in sports',
-            'Access new partners, markets and investment to accelerate business growth',
+            'Turn peers into collaborators at exclusive member events.',
+            'Get curated intros to the top leaders in sports.',
+            'Unlock partners, markets and capital to grow faster.',
           ],
         },
         {
-          title: 'Insider tech\nbusiness intelligence',
+          title: 'Insider sports\ntech intelligence',
           points: [
-            'Build with anytime / anywhere access to the best knowledge in sports tech',
-            'Inform your strategy with world-class sports tech market data and research',
-            'Leverage insider expertise to obtain a competitive advantage',
+            'Tap the best knowledge in sports tech, anytime.',
+            'Sharpen your strategy with world-class market data.',
+            'Stay ahead of emerging trends, companies and deals.',
           ],
         },
       ],
@@ -275,24 +297,21 @@ export const solutions = {
     {
       id: 'atlas-raise',
       variant: 'atlas',
-      // An OPERATOR card, below Playmakers.
-      sectors: ['founders'],
       eyebrow: 'atlas',
-      badge: 'FOR EARLY-STAGE FOUNDERS',
+      previewSlot: 1,
       title: 'Raising your next round?',
       blurb:
         'Find the right investors, benchmark your company and sharpen your pitch with the SportsTechX intelligence layer.',
       cta: 'TRY ATLAS RAISE',
       ctaHref: 'https://www.atlas.sportstechx.com',
       cta2: { label: 'BOOK A CALL', href: 'https://cal.com/khyati/sportstechx' },
-      testimonialsLabel: 'ATLAS TESTIMONIALS',
       testimonials: [testimonial, testimonial, testimonial, testimonial],
       tier: { label: 'RAISE', color: '#4580EC' },
       features: [
         {
           title: 'Build your case',
           points: [
-            'Analyze your pitch deck to assess your investor readiness',
+            'Analyse your pitch deck to assess your investor readiness',
             'Perform competitor benchmarking and market sizing',
             'Improve your pitch with expert feedback and iterative refinement',
           ],
@@ -300,7 +319,7 @@ export const solutions = {
         {
           title: 'Identify the right investors',
           points: [
-            'Access detailed profiles of 2+ verified sports tech investors',
+            'Access detailed profiles of 2,500+ verified sports tech investors',
             'Get matched with investors most likely to fund your startup',
             'Create a custom investor pipeline and manage your outreach',
           ],
@@ -309,7 +328,7 @@ export const solutions = {
           title: 'Close the deal',
           points: [
             'Build and maintain a due\ndiligence-ready data room',
-            'Access essential model documents for early stage investments',
+            'Access essential model documents for early-stage investments',
             'Monitor fundraising progress and keep your raise on track',
           ],
         },
@@ -318,18 +337,16 @@ export const solutions = {
     {
       id: 'atlas-scout',
       variant: 'atlas',
-      // The INVESTOR card. Copy from the "STX WEBSITE INVESTOR TOGGLE CONTENT"
-      // feedback (Website Feedback Tracker, 2026-10-21).
-      sectors: ['investors'],
+      // Investor > Deal flow & intelligence. Copy from the "STX WEBSITE
+      // INVESTOR TOGGLE CONTENT" feedback (2026-10-21); final copy TBC.
       eyebrow: 'atlas',
-      badge: 'INVESTORS',
+      previewSlot: 2,
       title: 'Sourcing your next investment?',
       blurb:
         'Find relevant deals, assess companies and strengthen your due diligence with SportsTechX market data and analysis.',
       cta: 'TRY ATLAS SCOUT',
       ctaHref: 'https://www.atlas.sportstechx.com/',
       cta2: { label: 'BOOK A CALL', href: 'https://cal.com/khyati/sportstechx' },
-      testimonialsLabel: 'ATLAS TESTIMONIALS',
       testimonials: [testimonial, testimonial, testimonial, testimonial],
       tier: { label: 'SCOUT', color: '#0FB86A' },
       features: [
@@ -355,6 +372,47 @@ export const solutions = {
             'Build watchlists and track companies through investment stages',
             'Monitor funding, growth and partnership signals',
             'Request introductions to founders through SportsTechX',
+          ],
+        },
+      ],
+    },
+    {
+      // Investor > Co-investors & peer networking. PLACEHOLDER copy until the
+      // Boardroom content lands: same dark layout as Playmakers, no wordmark
+      // vector yet (text stand-in), links to the old Investors Circle page.
+      id: 'boardroom',
+      variant: 'playmakers',
+      eyebrow: 'BOARDROOM',
+      wordmarkText: 'BOARDROOM',
+      title: 'Where sports tech\ninvestors meet.',
+      blurb: 'A private peer network for investors backing the future of sports.',
+      cta: 'EXPLORE BOARDROOM',
+      ctaHref: 'https://joinplaymakers.co',
+      // Placeholder quotes, as the Atlas cards use, until Boardroom's own land.
+      testimonials: [testimonial, testimonial, testimonial, testimonial],
+      features: [
+        {
+          title: 'Co-investors you can trust',
+          points: [
+            'Meet investors active in sports tech.',
+            'Share deal flow and build syndicates.',
+            'Compare notes on rounds and valuations.',
+          ],
+        },
+        {
+          title: 'Insider sports industry network',
+          points: [
+            'Connect with leagues, teams and operators.',
+            'Get curated intros to founders worth meeting.',
+            'Join exclusive member events.',
+          ],
+        },
+        {
+          title: 'Insider sports tech intelligence',
+          points: [
+            'Tap the best knowledge in sports tech, anytime.',
+            'Sharpen your thesis with world-class market data.',
+            'Stay ahead of emerging trends, companies and deals.',
           ],
         },
       ],
@@ -443,12 +501,15 @@ export interface FooterLink {
 
 export interface FooterColumn {
   title: string;
-  links: FooterLink[];
+  /** Plain list of links (Media, Company). */
+  links?: FooterLink[];
+  /** Or sub-grouped under small eyebrows, like the nav dropdown (Solutions). */
+  groups?: { title: string; links: FooterLink[] }[];
 }
 
 export const footer = {
   blurb:
-    'SportsTechX is the insider network for sports tech — connecting founders and investors through curated access, market data and practical fundraising support.',
+    'SportsTechX is the insider network for sports tech, connecting the people, intelligence and capital transforming the business of sports through curated access, market insights and deal flow support.',
   email: 'hello@sportstechx.com',
   /** Where the brand column\'s signup hands off. There is no /api/subscribe in
    * this app; every newsletter CTA on the site is a link to this host, and the
@@ -457,21 +518,26 @@ export const footer = {
   newsletterAction: 'https://newsletter.sportstechx.com/subscribe',
   columns: [
     {
+      // Organised like the nav's Solutions dropdown. `sector` sets the
+      // Solutions selector on click as well as scrolling there: a role id
+      // opens that role, a card id opens that product's card.
       title: 'Solutions',
-      links: [
-        // sector flips the Solutions toggle on click as well as scrolling there.
-        { label: 'For Founders', href: '/#solutions', sector: 'founders' },
-        { label: 'For Investors', href: '/#solutions', sector: 'investors' },
-      ],
-    },
-    {
-      title: 'Products',
-      links: [
-        { label: 'Playmakers', href: 'https://www.playmakers.sportstechx.com/' },
-        // The Investors Circle membership page, distinct from the Playmakers
-        // landing above.
-        { label: 'Investors Circle', href: 'https://joinplaymakers.co' },
-        { label: 'Atlas', href: 'https://www.atlas.sportstechx.com' },
+      groups: [
+        {
+          title: 'By role',
+          links: [
+            { label: 'For Founders', href: '/#solutions', sector: 'founders' },
+            { label: 'For Investors', href: '/#solutions', sector: 'investors' },
+          ],
+        },
+        {
+          title: 'By product',
+          links: [
+            { label: 'Atlas', href: '/#solutions', sector: 'atlas-raise' },
+            { label: 'Playmakers', href: '/#solutions', sector: 'playmakers' },
+            { label: 'Boardroom', href: '/#solutions', sector: 'boardroom' },
+          ],
+        },
       ],
     },
     {
@@ -507,11 +573,11 @@ export const footer = {
 export const mobileMenu = {
   groups: [
     { title: 'SOLUTIONS', links: [{ label: 'FOR FOUNDERS', href: '/#solutions' }, { label: 'FOR INVESTORS', href: '/#solutions' }] },
-    { title: 'MENU', links: [{ label: 'MEDIA', href: '/#media' }, { label: 'ABOUT', href: '/about', newTab: true }] },
+    { title: 'MENU', links: [{ label: 'MEDIA', href: '/#media' }] },
     {
       title: 'CONNECT',
       links: [
-        { label: 'JOIN THE NEWSLETTER', href: 'https://newsletter.sportstechx.com', accent: true },
+        { label: 'SUBSCRIBE', href: 'https://newsletter.sportstechx.com', accent: true },
         { label: 'LINKEDIN', href: 'https://www.linkedin.com/company/sportstechx/' },
         { label: 'YOUTUBE', href: 'https://www.youtube.com/@SportsTechX' },
       ],

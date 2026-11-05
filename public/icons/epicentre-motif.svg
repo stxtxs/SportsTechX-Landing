@@ -4,8 +4,7 @@
 <circle id="Ellipse 6" opacity="0.2" cx="793" cy="793" r="791.75" fill="url(#paint0_radial_0_5)" fill-opacity="0.59" stroke="white" stroke-width="2.5"/>
 <circle id="Ellipse 5" opacity="0.2" cx="793" cy="793" r="580.75" fill="url(#paint1_radial_0_5)" fill-opacity="0.59" stroke="white" stroke-width="2.5"/>
 <circle id="Ellipse 4" opacity="0.7" cx="793" cy="793" r="439.75" fill="url(#paint2_radial_0_5)" fill-opacity="0.32" stroke="white" stroke-width="2.5"/>
-<circle id="Ellipse 3" opacity="0.8" cx="793" cy="793" r="324.75" fill="url(#paint3_radial_0_5)" fill-opacity="0.59" stroke="white" stroke-width="2.5"/>
-<circle id="Ellipse 2" opacity="0.9" cx="793" cy="793" r="225.75" fill="url(#paint4_radial_0_5)" fill-opacity="0.59" stroke="white" stroke-width="2.5"/>
+<circle id="Ellipse 3" opacity="0.8" cx="793" cy="793" r="286.75" fill="url(#paint3_radial_0_5)" fill-opacity="0.59" stroke="white" stroke-width="2.5"/>
 <circle id="Ellipse 1" cx="793" cy="793" r="133.75" fill="url(#paint5_radial_0_5)" fill-opacity="0.59" stroke="white" stroke-width="2.5"/>
 </g>
 <g id="Logo">
@@ -27,11 +26,7 @@
 <stop stop-color="#4BAF8E"/>
 <stop offset="0.620192" stop-color="#FFFDFD"/>
 </radialGradient>
-<radialGradient id="paint3_radial_0_5" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(793 -310.57) rotate(90) scale(1802.66)">
-<stop stop-color="#4BAF8E"/>
-<stop offset="0.620192" stop-color="#FFFDFD"/>
-</radialGradient>
-<radialGradient id="paint4_radial_0_5" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(793 24.5631) rotate(90) scale(1255.23)">
+<radialGradient id="paint3_radial_0_5" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(793 -182.2) rotate(90) scale(1593.2)">
 <stop stop-color="#4BAF8E"/>
 <stop offset="0.620192" stop-color="#FFFDFD"/>
 </radialGradient>

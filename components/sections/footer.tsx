@@ -2,12 +2,12 @@ import type { CSSProperties } from 'react';
 import { BrandLogo } from '@/components/brand-logo';
 import { NewsletterForm } from '@/components/newsletter-form';
 import { SectorLink } from '@/components/sector-link';
-import { footer } from '@/lib/content';
+import { footer, type FooterLink } from '@/lib/content';
 import vectors from '@/design/vectors.json';
 import { cn } from '@/lib/utils';
 
 /**
- * A logo column, four link columns, and the "Cloud grid" of 2px rules that
+ * A logo column, three link columns, and the "Cloud grid" of 2px rules that
  * frames them — two horizontals running 4 units wider than the content column
  * on each side, and a vertical before each link column that overhangs above and
  * below.
@@ -42,6 +42,42 @@ function Icon({ name, className }: { name: string; className?: string }) {
   );
 }
 
+const LINK =
+  'footer-link inline-flex items-center gap-[15px] font-sans text-body leading-[1.78] text-heading/70 dark:text-heading/55 transition-colors duration-[80ms] ease-out hover:text-black active:text-heading/50 dark:hover:text-white';
+
+/** A column's text links. A `sector` link also sets the Solutions selector. */
+function LinkList({ links }: { links: FooterLink[] }) {
+  return (
+    <ul className="flex flex-col">
+      {links.map((link) => {
+        const inner = (
+          <>
+            {link.icon && <Icon name={link.icon} />}
+            {link.label}
+          </>
+        );
+        return (
+          <li key={link.label}>
+            {link.sector ? (
+              <SectorLink href={link.href} sector={link.sector} className={LINK}>
+                {inner}
+              </SectorLink>
+            ) : (
+              <a
+                href={link.href}
+                {...(link.href.startsWith('http') || link.newTab ? { target: '_blank', rel: 'noreferrer' } : {})}
+                className={LINK}
+              >
+                {inner}
+              </a>
+            )}
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
 export function Footer() {
   return (
     <footer id="about" data-rise className="relative bg-surface">
@@ -51,7 +87,7 @@ export function Footer() {
       <div className="footer-rig container-page">
         <span aria-hidden className="footer-rule footer-rule-top mt-12 block h-px w-full bg-line/50 dark:bg-line" />
 
-        <div className="footer-details relative mt-12 grid gap-12 lg:grid-cols-5">
+        <div className="footer-details relative mt-12 grid gap-12 lg:grid-cols-4">
           <div className="footer-col-1 flex flex-col gap-[18px]">
             {/* The artboard ships one pink lockup for every placement; black
                 here is a brand call from the client, so it is filtered rather
@@ -69,43 +105,25 @@ export function Footer() {
           </div>
 
           {footer.columns.map((column) => {
-            const labelled = column.links.filter((l) => !l.iconOnly);
-            const glyphs = column.links.filter((l) => l.iconOnly);
+            const links = column.links ?? [];
+            const labelled = links.filter((l) => !l.iconOnly);
+            const glyphs = links.filter((l) => l.iconOnly);
             return (
               <div key={column.title} className="footer-col relative flex flex-col gap-[21px]">
                 <h2 className="footer-head tracked font-display text-eyebrow leading-[1.45] text-black uppercase dark:text-white">
                   {column.title}
                 </h2>
-                <ul className="flex flex-col">
-                  {labelled.map((link) => {
-                    const linkClass =
-                      'footer-link inline-flex items-center gap-[15px] font-sans text-body leading-[1.78] text-heading/70 dark:text-heading/55 transition-colors duration-[80ms] ease-out hover:text-black active:text-heading/50 dark:hover:text-white';
-                    const inner = (
-                      <>
-                        {link.icon && <Icon name={link.icon} />}
-                        {link.label}
-                      </>
-                    );
-                    const sector = 'sector' in link ? link.sector : undefined;
-                    return (
-                      <li key={link.label}>
-                        {sector ? (
-                          <SectorLink href={link.href} sector={sector} className={linkClass}>
-                            {inner}
-                          </SectorLink>
-                        ) : (
-                          <a
-                            href={link.href}
-                            {...(link.href.startsWith('http') || link.newTab ? { target: '_blank', rel: 'noreferrer' } : {})}
-                            className={linkClass}
-                          >
-                            {inner}
-                          </a>
-                        )}
-                      </li>
-                    );
-                  })}
-                </ul>
+                {/* Sub-grouped like the nav's Solutions dropdown: a small
+                    eyebrow over each group. */}
+                {column.groups?.map((group) => (
+                  <div key={group.title} className="flex flex-col gap-1">
+                    <p className="footer-subhead tracked font-mono text-legal text-heading/50 uppercase dark:text-heading/45">
+                      {group.title}
+                    </p>
+                    <LinkList links={group.links} />
+                  </div>
+                ))}
+                {labelled.length > 0 && <LinkList links={labelled} />}
                 {/* Socials sit as bare glyphs on one row. The label is dropped
                     from view but carried as the accessible name — without it
                     the link would announce as nothing. */}

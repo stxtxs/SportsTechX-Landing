@@ -12,6 +12,22 @@ import { NewsletterForm } from '@/components/newsletter-form';
  *
  * Mounted once in the root layout, so every page shares one instance.
  */
+/**
+ * Companies whose people read the newsletter, shown as a logo row. Files are
+ * the public-domain marks from Wikimedia Commons (FIFA logo without slogan,
+ * Adidas Logo, F1.svg — the current F1 mark since 2017, Apple logo black,
+ * Andreessen Horowitz new logo, Kohlberg Kravis Roberts (logo)). `h` is each mark's height in px, tuned so
+ * wide wordmarks and compact marks read at a similar weight.
+ */
+const TRUSTED_BY: { name: string; logo?: string; h?: number }[] = [
+  { name: 'FIFA', logo: '/logos/fifa.svg', h: 16 },
+  { name: 'adidas', logo: '/logos/adidas.svg', h: 24 },
+  { name: 'Formula 1', logo: '/logos/formula-1.svg', h: 14 },
+  { name: 'Apple', logo: '/logos/apple.svg', h: 20 },
+  { name: 'a16z', logo: '/logos/a16z.svg', h: 20 },
+  { name: 'KKR', logo: '/logos/kkr.svg', h: 13 },
+];
+
 export function NewsletterModal() {
   const ref = useRef<HTMLDialogElement>(null);
 
@@ -57,15 +73,47 @@ export function NewsletterModal() {
             Join the inside track
           </h2>
           <p className="max-w-[40ch] font-sans text-body leading-[1.6] text-heading/70">
-            Insider sports tech &amp; venture, straight to your inbox — the people, insights and capital shaping the industry.
+            The deals, startups and trends shaping sports tech &amp; venture. Expert analysis and insider
+            perspectives, delivered every Friday.
           </p>
         </div>
 
         <div className="relative flex flex-col gap-3">
-          <NewsletterForm tone="modal" autoFocus />
-          <p className="px-[18px] font-sans text-body-sm text-heading/45">
-            Join 20,000+ founders, investors and operators. No spam — unsubscribe anytime.
+          <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-heading/45">
+            Trusted by top companies
           </p>
+          {/* Greyed so six different brand colours sit quietly together;
+              inverted in dark mode so the black marks turn light. A company
+              without a `logo` falls back to its name. */}
+          <ul className="flex flex-wrap items-center justify-between gap-x-5 gap-y-3">
+            {TRUSTED_BY.map((company) => (
+              <li key={company.name} className="font-sans text-[17px] font-semibold text-heading/45">
+                {company.logo ? (
+                  // eslint-disable-next-line @next/next/no-img-element -- small flat brand marks
+                  <img
+                    src={company.logo}
+                    alt={company.name}
+                    style={{ height: company.h ?? 20 }}
+                    className="w-auto opacity-55 grayscale dark:opacity-70 dark:invert"
+                  />
+                ) : (
+                  company.name
+                )}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="relative flex flex-col gap-3">
+          <div>
+            <p className="font-sans text-body leading-[1.6] text-heading/70">
+              Join 20,000+ founders, investors and sports business leaders.
+            </p>
+            <p className="font-sans text-body-sm leading-[1.6] text-heading/50 italic">
+              Always free, unsubscribe anytime
+            </p>
+          </div>
+          <NewsletterForm tone="modal" autoFocus />
         </div>
       </div>
     </dialog>

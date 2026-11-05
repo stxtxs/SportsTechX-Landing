@@ -36,7 +36,7 @@ export const about = {
   team: [
     {
       name: 'Thomas Preiss',
-      role: 'Advisor',
+      role: 'Chief Strategy Officer',
       bio: 'Common Goal Co-Founder | Athlete Community Builder | Venture Investor | Sports, Capital & Innovation for Positive Impact',
       teams: 'Sports Teams: SV Werder Bremen',
       photo: '/team/thomas-preiss.jpg',
@@ -44,7 +44,7 @@ export const about = {
     },
     {
       name: 'Rohn Malhotra',
-      role: 'Co-Founder & Managing Director',
+      role: 'Co-Founder & CEO',
       bio: 'Rohn is a serial entrepreneur, sports nut and cinephile with 16+ years of experience. He began his career as a Management Consultant with KPMG, successfully exited his last startup in 2017, then entered the SportsTech industry in 2018, making Berlin his home. Is also an Investment Director at Match Ventures, a SportsTech VC fund.',
       teams: 'Sports Teams: Manchester United, Bengaluru FC, Golden State Warriors',
       photo: '/team/rohn-malhotra.jpg',
@@ -62,15 +62,15 @@ export const about = {
       name: 'Khyati Choudhary',
       role: 'Head of Communications & Operations',
       bio: 'KC is an amateur footballer, long distance runner and an adventure sports enthusiast. She brings extensive experience in sports media and presenting across multiple sports, backed by an academic foundation in psychology and a Masters in Journalism. Beyond sport, she\'s actively involved in animal welfare and rescue initiatives.',
-      // The old site writes this one "Sports Teams/ Athletes:" and Advika's
-      // "Sports Teams/Athletes:". Same label, two spellings — normalised here.
+      // The old site writes this one "Sports Teams/ Athletes:"; normalised to
+      // "Sports Teams/Athletes:" to match the rest.
       teams: 'Sports Teams/Athletes: Real Madrid, Cristiano Ronaldo, Aryna Sabalenka, Alex Pereira',
       photo: '/team/khyati-choudhary.jpg',
       linkedin: 'https://www.linkedin.com/in/khyati-choudhary/',
     },
     {
       name: 'Brendon Murzello',
-      role: 'Head of Marketing',
+      role: 'Marketing',
       bio: 'Brendon heads up marketing and content at SportsTechX, blending strategic messaging with digital design to elevate our brand. Outside the office, he\'s usually training for his next run, shooting content or on a hike.',
       teams: 'Sports Teams: Manchester United, Red Bull Racing',
       photo: '/team/brendon-murzello.jpg',
@@ -85,14 +85,6 @@ export const about = {
       teams: 'Sports Teams: None',
       photo: '/team/umananda-siddha.jpg',
       linkedin: 'https://www.linkedin.com/in/umananda-siddha-399b95217/',
-    },
-    {
-      name: 'Advika Ponnappa',
-      role: 'Research & Data',
-      bio: 'Advika is currently pursuing a BSc in Computer Studies with a keen interest in International Relations. She is an enthusiastic sportswoman, having played hockey and badminton professionally. She has a strong interest towards learning about women\'s sports and advancements in sports technology.',
-      teams: 'Sports Teams/Athletes: Roger Federer, Serena Williams, PV Sindhu, RC Bangalore',
-      photo: '/team/advika-ponnappa.jpg',
-      linkedin: 'https://www.linkedin.com/in/advika-ponnappa-3b77a5276/',
     },
     {
       name: 'Avdhut Gursale',

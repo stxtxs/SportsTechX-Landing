@@ -1,27 +1,27 @@
 'use client';
 
+import type { AnchorHTMLAttributes } from 'react';
+
 /**
- * An anchor that also flips the Solutions sector toggle on click (the Solutions
- * section listens for `stx:sector`). The href still scrolls `#solutions` into
- * view. Used by the footer's Solutions links; the nav dropdown inlines the same
- * dispatch.
+ * An anchor that also sets the Solutions selector on click (the Solutions
+ * section listens for `stx:sector`). `sector` is a role id ("founders") or a
+ * card id ("playmakers"). The href still scrolls `#solutions` into view. Used
+ * by the hero CTAs and the footer's Solutions links; the nav dropdown inlines
+ * the same dispatch.
  */
 export function SectorLink({
-  href,
   sector,
-  className,
+  onClick,
   children,
-}: {
-  href: string;
-  sector: string;
-  className?: string;
-  children: React.ReactNode;
-}) {
+  ...anchor
+}: AnchorHTMLAttributes<HTMLAnchorElement> & { href: string; sector: string; [data: `data-${string}`]: unknown }) {
   return (
     <a
-      href={href}
-      onClick={() => window.dispatchEvent(new CustomEvent('stx:sector', { detail: sector }))}
-      className={className}
+      {...anchor}
+      onClick={(e) => {
+        window.dispatchEvent(new CustomEvent('stx:sector', { detail: sector }));
+        onClick?.(e);
+      }}
     >
       {children}
     </a>

@@ -15,9 +15,9 @@ export const SITE_URL = 'https://www.sportstechx.com';
 
 const TITLE = 'SportsTechX — Your Insider Access to Sports Tech & Venture';
 const DESCRIPTION =
-  'The leading people, deepest insights and active capital shaping the future of sports. 20K+ community members, 2,000+ investors tracked, 1,500+ companies mapped across 40+ countries.';
+  'Connecting the people, intelligence and capital transforming the business of sports. 10,000+ companies tracked, 2,500+ investors mapped, $130B+ deal flow tracked, 20,000+ newsletter subscribers.';
 const SHORT_DESCRIPTION =
-  'The leading people, deepest insights and active capital shaping the future of sports.';
+  'Connecting the people, intelligence and capital transforming the business of sports.';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),

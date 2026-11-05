@@ -23,9 +23,13 @@ const LINKEDIN_MASK = { '--m': 'url(/vectors/icon-footer-linkedin.svg)' } as CSS
  * markup for crawlers, but a reader without JS cannot open it. The disclosure
  * degraded; this does not.
  *
- * The card is a four-row subgrid — portrait / name / role / controls — so every
- * card in a row shares those tracks and each block starts on the same line as
- * its neighbours. The dialog is a fifth child but never a fifth track: closed
+ * The portrait is the only way in: clicking it opens the profile. The LinkedIn
+ * mark rides inline after the role, so it follows the last word if a long
+ * role wraps.
+ *
+ * The card is a three-row subgrid — portrait / name / role — so every card in
+ * a row shares those tracks and each block starts on the same line as its
+ * neighbours. The dialog is a fourth child but never a fourth track: closed
  * it is display:none, open it is in the top layer and out of flow.
  */
 export function PersonCard({ person }: { person: Person }) {
@@ -53,7 +57,7 @@ export function PersonCard({ person }: { person: Person }) {
   return (
     <article
       data-rise
-      className="group grid grid-rows-subgrid row-span-4 justify-items-center gap-0 text-center"
+      className="group grid grid-rows-subgrid row-span-3 justify-items-center gap-0 text-center"
     >
       <button
         type="button"
@@ -68,26 +72,21 @@ export function PersonCard({ person }: { person: Person }) {
         {person.name}
       </h3>
 
-      <p className="tracked mt-1 font-mono-alt text-mono-eyebrow text-accent uppercase">
+      {/* text-balance: a role too long for one line splits into two even
+          lines rather than leaving the icon alone on the second. */}
+      <p className="tracked mt-1 font-mono-alt text-mono-eyebrow text-balance text-accent uppercase">
         {person.role}
-      </p>
-
-      {/* One pair, one height: the Bio control and the LinkedIn mark share a
-          pill so neither towers over the other. */}
-      <div className="mt-4 flex items-center justify-center gap-2">
-        <button type="button" onClick={show} className="person-chip tracked px-4 font-mono text-legal uppercase">
-          Bio
-        </button>
+        {/* Small enough to sit on the role's line without pushing it taller. */}
         <a
           href={person.linkedin}
           target="_blank"
           rel="noreferrer"
           aria-label={`${person.name} on LinkedIn`}
-          className="person-chip person-chip--icon"
+          className="person-chip person-chip--icon ml-2 !size-[22px] align-middle"
         >
-          <span aria-hidden style={LINKEDIN_MASK} className="brand-icon size-[15px]" />
+          <span aria-hidden style={LINKEDIN_MASK} className="brand-icon size-[11px]" />
         </a>
-      </div>
+      </p>
 
       <dialog
         ref={dialog}

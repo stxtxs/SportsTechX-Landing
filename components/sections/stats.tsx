@@ -74,11 +74,14 @@ export function Stats() {
                 className={cn(
                   // Both columns read from the left, 20 in from their own cell,
                   // as the artboard has them.
-                  'flex flex-col items-start py-5 pl-5 md:w-[140px] md:px-0 md:py-0 lg:w-[155px]'
+                  // Width follows the figure size (2.65em of it), so a figure
+                  // as wide as "20,000+" fits at every breakpoint.
+                  'flex flex-col items-start py-5 pl-5 md:w-[calc(var(--text-stat)*2.65)] md:px-0 md:py-0'
                 )}
               >
                 <div className="flex flex-col gap-[8px] text-left">
-                  <CountUp value={stat.value} className="font-display text-stat leading-[0.94]" />
+                  {/* stat-figure (globals.css) shrinks it slightly on small phones. */}
+                  <CountUp value={stat.value} className="stat-figure font-display text-stat leading-[0.94]" />
                   <p className="tracked font-sans text-stat-label leading-[1.3] whitespace-pre-line">
                     {stat.label}
                   </p>

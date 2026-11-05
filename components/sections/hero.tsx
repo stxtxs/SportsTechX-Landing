@@ -1,4 +1,7 @@
+import { Fragment } from 'react';
 import Image from 'next/image';
+import { HeroOrbits } from '@/components/hero-orbits';
+import { SectorLink } from '@/components/sector-link';
 import { hero } from '@/lib/content';
 import { cn } from '@/lib/utils';
 
@@ -13,85 +16,6 @@ import { cn } from '@/lib/utils';
  * frame's height. Sizing it off the height rather than the width is what keeps
  * the composition intact when the frame is wider or shorter than the artboard.
  */
-/**
- * The pills are not scattered — each sits ON one of the rings. Converting the
- * artboard positions to polar coordinates about the motif centre gives radii
- * that land on exactly two of the six circles:
- *   FOUNDERS 17.0% / INVESTORS 16.7%   -> innermost ring (270 dia = 17.0%)
- *   TEAMS 52.7% / ATHLETES 52.8% / LEAGUES 57.1% / MEDIA 57.5% -> 882 ring (55.6%)
- * `r` is a share of the motif radius, `a` the angle in degrees with y down.
- * `mr`/`ma` are the mobile overrides; the design drops MEDIA and ATHLETES there.
- *
- * The radii fall into three pairs, each pair sharing an orbit. The two capsules
- * on an orbit run at the same speed in OPPOSITE directions, so they meet and
- * pass twice a revolution. Duration is per orbit — outermost slowest, innermost
- * fastest, as orbits actually behave. No delays: the first painted frame is the
- * artboard.
- */
-/*
- * `sweep` is how far a pill travels from its artboard angle and back. Only the
- * UPPER half of each circle is on screen — the motif centre sits at ~94% of the
- * hero's height — so a full revolution parked every pill off-screen for half its
- * cycle. Each sweep therefore points INWARD, toward the top of the arc: the two
- * on the right go negative, the three on the left positive.
- *
- * Inward rather than a centred swing, because the outermost pills have almost no
- * room the other way: MEDIA sits 6.6deg from -180 and INVESTORS 9.3deg from 0, so
- * a symmetric oscillation would have to be tiny for them. It also keeps each
- * orbit's pair counter-rotating for free, since partners sit on opposite sides.
- */
-/* Durations per orbit (seconds) — lower is faster. Sped up ~30% from 26/22/18
-   for a more dynamic ecosystem, keeping the outer-slowest / inner-fastest feel. */
-const ORBIT = { outer: 18, mid: 15, inner: 12 };
-
-/**
- * Sweep is per-orbit, like duration, and every pill now travels AWAY from the
- * copy rather than toward it.
- *
- * It used to be one constant at 35 pointing inward — inward on these arcs means
- * up, so the outermost pill climbed from 75% of the hero to 55%, landing on the
- * FOR INVESTORS button and reaching into the subhead. That is the "too close to
- * the headline" half of the design note.
- *
- * Signs below therefore read off which side a pill sits on: angles run with y
- * down, so on the right (LEAGUES, ATHLETES, INVESTORS) a positive sweep drops
- * toward the horizon, while on the left (TEAMS, FOUNDERS, MEDIA) a negative one
- * does.
- *
- * MEDIA gets its own, smaller figure. It rests 6.6deg from -180, and past -180
- * the arc dives under the motif centre and off the bottom of the frame, so it
- * has only that much room. Giving it the full sweep in the other direction was
- * worse: it then closed on TEAMS, 16deg away on the next ring out, and the two
- * met head-on.
- *
- * The magnitude came down from 35 to single digits because the boxes are fixed
- * px inside a frame measured in percentages: at 35 the inner pair closed from
- * 137deg apart to 67deg while staying 130/134 wide, so they overlapped below
- * ~920px of hero height — most laptops.
- */
-const SWEEP = { outer: 9, mid: 8, inner: 7, media: 6 };
-
-/**
- * `w` / `mw` are the artboard's own pill widths — its pills are fixed width
- * with the glyph and label centred inside, not padded to fit. Deriving the
- * width from padding instead ran every pill 2-23 too wide.
- */
-type Pill = { r: number; a: number; mr?: number; ma?: number; dur: number; sweep: number; w: number; mw?: number };
-
-const PILLS: Record<string, Pill> = {
-  // 57.3% orbit — LEAGUES drops toward the horizon on the right, MEDIA edges
-  // down the little it can on the left, so the pair opens rather than closes.
-  LEAGUES: { r: 57.1, a: -25.4, mr: 40.9, ma: -45.0, dur: ORBIT.outer, sweep: SWEEP.outer, w: 124, mw: 90 },
-  MEDIA: { r: 57.5, a: -173.4, dur: ORBIT.outer, sweep: -SWEEP.media, w: 112 },
-  // 52.75% orbit — both descend, so they open rather than close.
-  ATHLETES: { r: 52.8, a: -10.8, dur: ORBIT.mid, sweep: SWEEP.mid, w: 128 },
-  TEAMS: { r: 52.7, a: -157.0, mr: 45.5, ma: -135.8, dur: ORBIT.mid, sweep: -SWEEP.mid, w: 102, mw: 78 },
-  // 16.85% orbit — these ride the innermost ring, radius 135 on the artboard.
-  // Also descending apart: at 35deg each they used to collide on most laptops.
-  INVESTORS: { r: 16.7, a: -9.3, mr: 26.4, ma: 4.6, dur: ORBIT.inner, sweep: SWEEP.inner, w: 134, mw: 116 },
-  FOUNDERS: { r: 17.0, a: -146.4, mr: 24.0, ma: -157.2, dur: ORBIT.inner, sweep: -SWEEP.inner, w: 130, mw: 112 },
-};
-
 export function Hero() {
   return (
     <section id="top" className="hero-frame relative isolate h-[100svh] min-h-[640px] overflow-hidden bg-hero">
@@ -99,6 +23,7 @@ export function Hero() {
           frame's height so the orbits keep their proportions at any viewport. */}
       <div
         aria-hidden
+        data-orbit-motif
         className="fade-load pointer-events-none absolute top-[var(--motif-cy)] left-1/2 -z-30 aspect-square h-[calc(var(--motif-r)*2)] -translate-x-1/2 -translate-y-1/2"
       >
         <Image
@@ -116,29 +41,41 @@ export function Hero() {
         // block is a fixed-px stack (mt-3, mt-26, a 54 button) inside a frame
         // measured in percentages, so it eats a growing share as the viewport
         // shortens. Mobile's 13% already matches its own board (115.8/852).
-        className="absolute inset-x-0 top-[13%] flex flex-col items-center px-5 text-center lg:top-[17%] lg:px-0">
-        {/* Mutes the orbits where they pass behind the copy. */}
+        // pointer-events-none on the block, back on for its children: the block
+        // is full width, and its empty sides must not swallow hovers on pills.
+        className="pointer-events-none absolute inset-x-0 top-[13%] flex flex-col items-center px-5 text-center lg:top-[17%] lg:px-0">
+        {/* Softens the motif rings behind the copy. */}
         <div aria-hidden className="hero-scrim" />
 
+        {/* data-orbit-avoid: the orbiting pills keep clear of these. */}
         <h1
+          data-orbit-avoid
           // max-width in em, not px, so the designed two-line break survives the
           // fluid type scale at every width.
-          className="rise-load tracked max-w-[11em] font-display text-headline leading-[1.08] text-fg uppercase"
+          className="pointer-events-auto rise-load tracked max-w-[11em] font-display text-headline leading-[1.08] text-fg uppercase"
         >
-          {hero.headline}
+          {/* The ampersand is picked out in brand magenta. */}
+          {hero.headline.split('&').map((part, i) => (
+            <Fragment key={i}>
+              {i > 0 && <span className="text-accent-2">&amp;</span>}
+              {part}
+            </Fragment>
+          ))}
         </h1>
 
-        <p className="mt-3 max-w-[648px] font-sans text-body-lg leading-[1.57] font-medium whitespace-pre-line text-fg-2">
+        <p data-orbit-avoid className="pointer-events-auto mt-3 max-w-[648px] font-sans text-body-lg leading-[1.57] font-medium whitespace-pre-line text-fg-2">
           {hero.subhead}
         </p>
 
         <div className="mt-[26px] flex flex-col items-center gap-5 sm:flex-row sm:gap-[30px] lg:gap-[30px]">
           {hero.ctas.map((cta) => (
-            <a
+            <SectorLink
               key={cta.label}
               href={cta.href}
+              sector={cta.sector}
+              data-orbit-avoid
               className={cn(
-                'group tracked inline-flex h-[41px] w-[215px] items-center justify-center rounded-[93px] font-mono text-cta text-white',
+                'pointer-events-auto group tracked inline-flex h-[41px] w-[215px] items-center justify-center rounded-[93px] font-mono text-cta text-white',
                 'shadow-cta lg:h-[54px] lg:w-[249px]',
                 // Both buttons go black on hover, per the interactions board.
                 'hover:bg-black active:bg-black',
@@ -159,65 +96,12 @@ export function Hero() {
               <span className="transition-opacity duration-[80ms] ease-out group-active:opacity-70">
                 {cta.label}
               </span>
-            </a>
+            </SectorLink>
           ))}
         </div>
       </div>
 
-      {/* Category pills, rigged to travel along their orbit. The outer span is a
-          box the size of the motif, centred on it, that rotates; the inner one is
-          pushed out by the pill's radius and counter-rotates so the label stays
-          upright. Both read one animated angle, so they cannot drift apart —
-          see --live in globals.css. */}
-      {hero.pills.map((pill) => {
-        const p = PILLS[pill.label];
-        return (
-          <span
-            key={pill.label}
-            style={
-              {
-                // share of the motif diameter, so r% of the radius is r/2 here
-                '--r': `${(p.mr ?? p.r) / 2}%`,
-                '--r-lg': `${p.r / 2}%`,
-                '--a': `${p.ma ?? p.a}deg`,
-                '--a-lg': `${p.a}deg`,
-                '--dur': `${p.dur}s`,
-                '--sweep': `${p.sweep}deg`,
-                '--pw': `${p.w}px`,
-                '--pw-m': `${p.mw ?? p.w}px`,
-              } as React.CSSProperties
-            }
-            // -z-10 puts the pills behind the headline and CTAs, so a full
-            // revolution tucks them under the text instead of covering it. They
-            // still sit above the motif, which is earlier in the DOM.
-            className={cn('orbit -z-20', !p.mr && 'hidden lg:block')}
-          >
-            <span className="orbit-pill" data-pill={pill.label}>
-              <span
-                className={cn(
-                  'inline-flex h-[24px] w-[var(--pw-m)] items-center justify-center gap-[7px] rounded-full font-mono text-[11px]',
-                  'shadow-pill tracking-[0.1em] whitespace-nowrap lg:h-[31px] lg:w-[var(--pw)] lg:text-[14px]',
-                  pill.primary
-                    ? 'border-[1.5px] border-accent bg-white text-accent-2 lg:border-2 dark:bg-surface'
-                    : 'border-[1.5px] border-pill-border bg-[#d9d9d9]/12 text-pill-fg lg:border-2'
-                )}
-              >
-                {/* Each glyph keeps its own artboard dimensions — not a uniform set. */}
-                <Image
-                  src={pill.icon}
-                  alt=""
-                  width={pill.w}
-                  height={pill.h}
-                  // Only the grey glyphs flip for dark; inverting the accent pair
-                  // would turn #ed1a5e pink into teal.
-                  className={cn('shrink-0', !pill.primary && 'dark:invert')}
-                />
-                {pill.label}
-              </span>
-            </span>
-          </span>
-        );
-      })}
+      <HeroOrbits pills={hero.pills} />
     </section>
   );
 }

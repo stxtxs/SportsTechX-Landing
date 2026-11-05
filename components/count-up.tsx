@@ -19,13 +19,19 @@ import { useEffect, useRef, useState } from 'react';
 const DURATION = 1400;
 const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
 
-/** "2,000+" -> { n: 2000, suffix: "+", grouped: true } */
-function parse(value: string): { n: number; prefix: string; suffix: string; grouped: boolean } | null {
+/**
+ * "2,000+" -> { n: 2000, suffix: "+", grouped: true }
+ * "2.5K+"  -> { n: 2.5, suffix: "K+", decimals: 1 } so it climbs to 2.5, not 3
+ */
+function parse(
+  value: string
+): { n: number; prefix: string; suffix: string; grouped: boolean; decimals: number } | null {
   const m = value.match(/^(\D*)([\d.,]+)(.*)$/);
   if (!m) return null;
   const [, prefix, digits, suffix] = m;
   const n = Number(digits.replace(/,/g, ''));
-  return Number.isFinite(n) ? { n, prefix, suffix, grouped: digits.includes(',') } : null;
+  const decimals = digits.split('.')[1]?.length ?? 0;
+  return Number.isFinite(n) ? { n, prefix, suffix, grouped: digits.includes(','), decimals } : null;
 }
 
 export function CountUp({ value, className }: { value: string; className?: string }) {
@@ -51,7 +57,7 @@ export function CountUp({ value, className }: { value: string; className?: strin
           const at = parts.n * easeOut(t);
           const body = parts.grouped
             ? Math.round(at).toLocaleString('en-US')
-            : String(Math.round(at));
+            : at.toFixed(parts.decimals);
           setShown(parts.prefix + body + parts.suffix);
           if (t < 1) raf = requestAnimationFrame(frame);
         };

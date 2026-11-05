@@ -10,7 +10,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: 'SportsTechX',
     short_name: 'SportsTechX',
     description:
-      'The leading people, deepest insights and active capital shaping the future of sports.',
+      'Connecting the people, intelligence and capital transforming the business of sports.',
     id: SITE_URL,
     start_url: '/',
     display: 'standalone',
