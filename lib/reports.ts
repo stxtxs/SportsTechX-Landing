@@ -54,10 +54,12 @@ export async function latestReport(): Promise<Report | null> {
     if (!row) return null;
     return {
       title: row.title!,
-      // Slugs are nullable; without one the index is still a sane destination.
+      // Atlas, not the retired Intelligence Hub. Atlas asks a signed-out visitor
+      // to sign in, then returns them to this report. Slugs are nullable;
+      // without one the reports index is still a sane destination.
       link: row.slug
-        ? `https://intelligence.sportstechx.com/reports/${row.slug}`
-        : 'https://intelligence.sportstechx.com/reports/',
+        ? `https://www.atlas.sportstechx.com/reports/${encodeURIComponent(row.slug)}`
+        : 'https://www.atlas.sportstechx.com/reports',
       image: row.cover_url!,
     };
   } catch (error) {

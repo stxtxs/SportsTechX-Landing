@@ -479,7 +479,6 @@ export const footer = {
       links: [
         { label: 'Newsletter', href: 'https://newsletter.sportstechx.com' },
         { label: 'Podcast', href: 'https://creators.spotify.com/pod/profile/sportstechx/' },
-        // The hub, not atlas.sportstechx.com/reports — that redirects to /login.
         { label: 'Reports', href: 'https://www.atlas.sportstechx.com/reports' },
         { label: 'Events', href: 'https://www.atlas.sportstechx.com/events' },
       ],
