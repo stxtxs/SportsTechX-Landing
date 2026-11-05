@@ -1268,8 +1268,11 @@
     margin-top: calc(10 * var(--k));
   }
 
+  /* The mobile artboard scales with --k (width / 390), so at tablet widths the
+   * story doubled in size and the bottom padding ran to 200px. The min()/clamp()
+   * caps below leave a phone exactly as designed and stop the growth past it. */
   .card-stories {
-    padding: calc(49 * var(--k) + 18px) calc(20 * var(--k)) calc(100 * var(--k) + 18px);
+    padding: calc(min(49 * var(--k), 64px) + 18px) calc(20 * var(--k)) calc(min(60 * var(--k), 72px) + 18px);
   }
   /* No artboard min-height here: the strip now holds the story plus the arrow
    * row, and a fixed height only added dead space under short quotes. */
@@ -1277,23 +1280,30 @@
     margin-top: calc(22 * var(--k));
   }
   .card-quote {
-    font-size: max(14px, calc(18 * var(--k)));
+    font-size: clamp(14px, calc(18 * var(--k)), 22px);
     line-height: 1.55;
+    max-width: 640px;
   }
   /* Mobile stacks the chip: a 70 avatar over centred details. */
   .card-chip {
     flex-direction: column;
     align-items: center;
-    margin-top: calc(29 * var(--k));
-    gap: calc(10 * var(--k));
+    margin-top: min(calc(29 * var(--k)), 36px);
+    gap: min(calc(10 * var(--k)), 12px);
   }
   .card-avatar {
-    width: calc(70 * var(--k));
-    height: calc(70 * var(--k));
+    width: min(calc(70 * var(--k)), 88px);
+    height: min(calc(70 * var(--k)), 88px);
     border-radius: 50%; /* avatars are always circular */
   }
   .card-chip-text {
     text-align: center;
+  }
+  .card-chip-name {
+    font-size: clamp(11px, calc(15 * var(--k)), 18px);
+  }
+  .card-chip-role {
+    font-size: clamp(9px, calc(12 * var(--k)), 14px);
   }
   /* Mobile: the arrows sit in their own row under the story, side by side in
    * the centre. Floating at mid-height they landed on the quote's text, which
