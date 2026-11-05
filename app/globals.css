@@ -1181,10 +1181,12 @@
   .card-wordmark {
     height: calc(var(--m-mark) * var(--k));
   }
+  /* Mobile pass (Nov 2026): the artboard's 38 set every headline on four lines
+   * and pushed the cards to ~2300 tall. 30 reads as a headline, not a wall. */
   .card-headline {
     margin-top: calc(var(--m-headline-mt) * var(--k));
-    font-size: max(24px, calc(38 * var(--k)));
-    line-height: calc(43 / 38);
+    font-size: max(24px, calc(30 * var(--k)));
+    line-height: 1.12;
   }
   .card-blurb {
     margin-top: calc(7 * var(--k));
@@ -1205,8 +1207,8 @@
   .card-panel {
     order: 1;
     width: 100%;
-    height: calc(342 * var(--k));
-    margin-top: calc(50 * var(--k));
+    height: calc(270 * var(--k));
+    margin-top: calc(32 * var(--k));
     border-radius: calc(10 * var(--k));
   }
   .card-tag {
@@ -1218,12 +1220,12 @@
     font-size: max(10px, calc(12 * var(--k)));
   }
 
+  /* No artboard floor: the band is as tall as its (now smaller) copy. */
   .card-band {
-    min-height: calc(962 * var(--k));
-    padding: calc(31 * var(--k)) calc(20 * var(--k)) calc(49 * var(--k));
+    padding: calc(28 * var(--k)) calc(20 * var(--k)) calc(36 * var(--k));
   }
   .card-cases {
-    gap: calc(40 * var(--k));
+    gap: calc(28 * var(--k));
   }
   /* Stacked columns, so the rule runs across rather than down. */
   .card-case-rule {
@@ -1231,7 +1233,7 @@
     height: 1px;
   }
   .card-col {
-    gap: calc(16 * var(--k));
+    gap: calc(14 * var(--k));
   }
   .card-col-head {
     gap: calc(13 * var(--k));
@@ -1245,34 +1247,32 @@
     height: calc(var(--ih) * 0.69 * var(--k));
   }
   .card-col-title {
-    font-size: max(15px, calc(19 * var(--k)));
-    line-height: calc(30 / 19);
+    font-size: max(15px, calc(17 * var(--k)));
+    line-height: 1.4;
   }
   .card-uses {
     width: calc(321 * var(--k));
     margin-left: calc(20.5 * var(--k));
-    gap: calc(7 * var(--k));
+    gap: calc(10 * var(--k));
   }
-  /* The artboard's use-case rows are 52 whatever the copy does. Letting them
-   * shrink to the text left every column 5 short, which compounded into 100 of
-   * dead green at the foot of the band instead of the designed 49. */
+  /* Rows size to their copy (the artboard's fixed 52 left gaps under short
+   * lines once the type came down to 14). */
   .card-use {
-    min-height: calc(52 * var(--k));
-    gap: calc(18 * var(--k));
-    font-size: max(13px, calc(16 * var(--k)));
-    line-height: calc(22 / 16);
+    gap: calc(14 * var(--k));
+    font-size: max(13px, calc(14 * var(--k)));
+    line-height: calc(20 / 14);
   }
   .card-bullet {
-    width: calc(10 * var(--k));
-    height: calc(10 * var(--k));
-    margin-top: calc(10 * var(--k));
+    width: calc(9 * var(--k));
+    height: calc(9 * var(--k));
+    margin-top: calc(5.5 * var(--k));
   }
 
   /* The mobile artboard scales with --k (width / 390), so at tablet widths the
    * story doubled in size and the bottom padding ran to 200px. The min()/clamp()
    * caps below leave a phone exactly as designed and stop the growth past it. */
   .card-stories {
-    padding: calc(min(49 * var(--k), 64px) + 18px) calc(20 * var(--k)) calc(min(60 * var(--k), 72px) + 18px);
+    padding: calc(min(36 * var(--k), 48px) + 12px) calc(20 * var(--k)) calc(min(48 * var(--k), 60px) + 12px);
   }
   /* No artboard min-height here: the strip now holds the story plus the arrow
    * row, and a fixed height only added dead space under short quotes. */
@@ -1280,7 +1280,7 @@
     margin-top: calc(22 * var(--k));
   }
   .card-quote {
-    font-size: clamp(14px, calc(18 * var(--k)), 22px);
+    font-size: clamp(14px, calc(15.5 * var(--k)), 19px);
     line-height: 1.55;
     max-width: 640px;
   }
