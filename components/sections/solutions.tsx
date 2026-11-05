@@ -345,7 +345,7 @@ function SolutionBlock({
                       <li key={point} className="card-use flex gap-[18px]">
                         <span
                           aria-hidden
-                          className="card-bullet mt-2 size-[10px] shrink-0 border border-white/70"
+                          className="card-bullet mt-2 size-[10px] shrink-0 rounded-[3px] border border-white/70"
                         />
                         <span className="font-sans text-body leading-[1.56] font-medium whitespace-pre-line text-white/90">
                           {point}
