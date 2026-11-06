@@ -63,6 +63,27 @@ const ORBITS: OrbitSpec[] = [
 /** The orbit whose clock drives this one. */
 const leaderOf = (o: number) => ORBITS[o].lockedTo ?? o;
 
+/**
+ * Phones can't fit the sports and commercial orbits in full, so there the six
+ * grey pills share one rotating orbit instead: two or three slots (as many as
+ * fit cleanly) that cycle through all six names. Each time a slot's pill wraps
+ * it comes back as the next name in the queue, and the name it showed goes to
+ * the back, so every name appears before any repeats.
+ *
+ * It moves in step with Founders and Investors (locked to their orbit): a
+ * phone is too narrow for two independent orbits to pass at the sides, but
+ * pills that travel together never meet. Hovering any pill pauses both.
+ */
+const ROTATING = {
+  // Drawn rings first. On small phones (~375 and narrower) nothing fits on
+  // them: the stacked buttons block the top and the screen edges the sides, so
+  // the last resort is the narrow band just outside Founders and Investors.
+  rings: [RING[1], RING[2], RING[3], 0.32, 0.3],
+  slots: [3, 2],
+  /** The Founders orbit, whose clock and direction the rotating one follows. */
+  leader: 0,
+};
+
 /** The logo's box in the motif, relative to its centre, as a share of radius. */
 const LOGO = { l: -26 / 793, r: 26 / 793, t: -66 / 793, b: 14 / 793 };
 /** Clear space around the copy, logo and frame edges, in px. */
@@ -87,7 +108,8 @@ function avoidRects(el: Element, origin: DOMRect): Rect[] {
   return [inflate(el.getBoundingClientRect(), AVOID_MARGIN, origin)];
 }
 
-type Layout = { scene: Scene; fit: Fit };
+/** `rotating`: the phone fallback, with fit.tracks = [Founders orbit, rotating orbit]. */
+type Layout = { scene: Scene; fit: Fit; rotating?: { slots: number } };
 
 function measure(layer: HTMLElement, pills: HTMLElement[], meta: HeroPill[]): Layout | null {
   const section = layer.closest('section');
@@ -115,19 +137,38 @@ function measure(layer: HTMLElement, pills: HTMLElement[], meta: HeroPill[]): La
   };
 
   const lg = window.matchMedia('(min-width: 64rem)').matches;
+  const sizeOf = (els: HTMLElement[]) => ({
+    w: Math.max(...els.map((p) => p.offsetWidth)),
+    h: Math.max(...els.map((p) => p.offsetHeight)),
+  });
   const orbits = ORBITS.map((spec, o) => {
     const mine = pills.filter((_, i) => meta[i].orbit === o + 1);
     return {
       radii: (lg ? spec.lg : spec.sm).map((share) => share * R),
       count: mine.length,
       lockedTo: spec.lockedTo,
-      pill: {
-        w: Math.max(...mine.map((p) => p.offsetWidth)),
-        h: Math.max(...mine.map((p) => p.offsetHeight)),
-      },
+      pill: sizeOf(mine),
     };
   });
-  return { scene, fit: fitOrbits(scene, orbits) };
+  const fit = fitOrbits(scene, orbits);
+  if (fit.tracks.every(Boolean)) return { scene, fit };
+
+  // Not every orbit fits (phones): rotate all six grey names through the
+  // slots that do, most slots first, so none of them is left out.
+  const grey = pills.filter((_, i) => meta[i].orbit !== 1);
+  for (const slots of ROTATING.slots) {
+    const rotating = fitOrbits(scene, [
+      orbits[0],
+      {
+        radii: ROTATING.rings.map((share) => share * R),
+        count: slots,
+        pill: sizeOf(grey),
+        lockedTo: ROTATING.leader,
+      },
+    ]);
+    if (rotating.tracks[1]) return { scene, fit: rotating, rotating: { slots } };
+  }
+  return { scene, fit };
 }
 
 /**
@@ -141,6 +182,8 @@ export function HeroOrbits({ pills }: { pills: HeroPill[] }) {
   const pillRefs = useRef<HTMLSpanElement[]>([]);
   /** Which orbit the pointer is resting on, if any. */
   const hovered = useRef<number | null>(null);
+  /** Whether the phone's rotating layout is in use (every pill shares one clock). */
+  const rotatingNow = useRef(false);
 
   useEffect(() => {
     const layer = layerRef.current;
@@ -170,18 +213,78 @@ export function HeroOrbits({ pills }: { pills: HeroPill[] }) {
     /** What the last layout was measured from, to skip identical refits. */
     let measuredFor = '';
 
+    // The rotating orbit's queue: pill indices in content order. `shown[k]` is
+    // the pill in slot k, `waiting` the rest in turn, `at[k]` the stretch slot
+    // k was last on, so a change means it just wrapped.
+    const greyPills = pills.map((p, i) => (p.orbit === 1 ? -1 : i)).filter((i) => i >= 0);
+    let rotation: { shown: number[]; waiting: number[]; at: (number | undefined)[] } | null = null;
+    const resetRotation = (slots: number) => {
+      rotation = { shown: greyPills.slice(0, slots), waiting: greyPills.slice(slots), at: [] };
+    };
+
+    const hide = (slot: HTMLElement) => {
+      slot.style.opacity = '0';
+      slot.style.visibility = 'hidden';
+    };
+    const show = (slot: HTMLElement, x: number, y: number, scale: number, opacity: number) => {
+      slot.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%) scale(${scale})`;
+      slot.style.opacity = opacity.toFixed(3);
+      slot.style.visibility = opacity < 0.02 ? 'hidden' : 'visible';
+    };
+
+    const placeRotating = () => {
+      if (!layout || !rotation) return;
+      const { scene, fit } = layout;
+      const still = reduced.matches;
+      const track = fit.tracks[1];
+      // The grey pills not in a slot right now stay hidden.
+      greyPills.forEach((i) => {
+        if (!rotation!.shown.includes(i)) hide(slots[i]);
+      });
+      if (!track) return;
+      const spec = ORBITS[ROTATING.leader];
+      const leadTrack = fit.tracks[ROTATING.leader];
+      const ratio = leadTrack ? track.length / leadTrack.length : 1;
+      const travel = still ? 0 : (spec.dir * 360 * clock[ROTATING.leader] * ratio) / spec.period;
+      rotation.shown.forEach((_, k) => {
+        const { deg, opacity, stretch } = placeOnTrack(track, track.rest + track.offsets[k] + travel);
+        // Wrapped onto a new stretch: hand the slot to the next name in the
+        // queue and send the one it showed to the back. The pill is faded out
+        // at this point, so the swap is never seen.
+        const r = rotation!;
+        if (!still && r.at[k] !== undefined && r.at[k] !== stretch && r.waiting.length > 0) {
+          hide(slots[r.shown[k]]);
+          r.waiting.push(r.shown[k]);
+          r.shown[k] = r.waiting.shift()!;
+        }
+        r.at[k] = stretch;
+        const x = scene.cx + track.r * Math.cos((deg * Math.PI) / 180);
+        const y = scene.cy + track.r * Math.sin((deg * Math.PI) / 180);
+        show(slots[r.shown[k]], x, y, fit.scale, opacity);
+      });
+    };
+
     const place = () => {
       if (!layout) return;
       const { scene, fit } = layout;
       const still = reduced.matches;
+      if (layout.rotating) {
+        // Founders and Investors as usual; the grey pills through the queue.
+        slots.forEach((slot, i) => {
+          if (slotOf[i].orbit !== 0) return;
+          const track = fit.tracks[0];
+          if (!track) return hide(slot);
+          const travel = still ? 0 : (ORBITS[0].dir * 360 * clock[0]) / ORBITS[0].period;
+          const { deg, opacity } = placeOnTrack(track, track.rest + track.offsets[slotOf[i].index] + travel);
+          show(slot, scene.cx + track.r * Math.cos((deg * Math.PI) / 180), scene.cy + track.r * Math.sin((deg * Math.PI) / 180), fit.scale, opacity);
+        });
+        placeRotating();
+        return;
+      }
       slots.forEach((slot, i) => {
         const { orbit, index } = slotOf[i];
         const track = fit.tracks[orbit];
-        if (!track) {
-          slot.style.opacity = '0';
-          slot.style.visibility = 'hidden';
-          return;
-        }
+        if (!track) return hide(slot);
         // A locked orbit covers its track in the leader's time, so both wrap
         // together: same clock, scaled by the two track lengths.
         const lead = leaderOf(orbit);
@@ -191,9 +294,7 @@ export function HeroOrbits({ pills }: { pills: HeroPill[] }) {
         const { deg, opacity } = placeOnTrack(track, track.rest + track.offsets[index] + travel);
         const x = scene.cx + track.r * Math.cos((deg * Math.PI) / 180);
         const y = scene.cy + track.r * Math.sin((deg * Math.PI) / 180);
-        slot.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%) scale(${fit.scale})`;
-        slot.style.opacity = opacity.toFixed(3);
-        slot.style.visibility = opacity < 0.02 ? 'hidden' : 'visible';
+        show(slot, x, y, fit.scale, opacity);
       });
     };
 
@@ -236,8 +337,16 @@ export function HeroOrbits({ pills }: { pills: HeroPill[] }) {
       if (key !== measuredFor || !layout) {
         measuredFor = key;
         layout = measure(layer, pillEls, pills);
+        const slotsNow = layout?.rotating?.slots ?? 0;
+        if (!slotsNow) rotation = null;
+        else if (!rotation || rotation.shown.length !== slotsNow) resetRotation(slotsNow);
         // A pill that just lost its orbit can't receive pointerleave; let go.
-        if (hovered.current !== null && !layout?.fit.tracks.some((t, o) => t && leaderOf(o) === hovered.current)) {
+        const held = hovered.current;
+        const stillShown = layout?.rotating
+          ? held === ROTATING.leader
+          : layout?.fit.tracks.some((t, o) => t && leaderOf(o) === held);
+        rotatingNow.current = Boolean(layout?.rotating);
+        if (held !== null && !stillShown) {
           hovered.current = null;
           layer.removeAttribute('data-hover');
           pillEls.forEach((el) => el.removeAttribute('data-active'));
@@ -291,7 +400,7 @@ export function HeroOrbits({ pills }: { pills: HeroPill[] }) {
 
   const enter = (i: number) => {
     // A locked pair pauses together, so hovering either holds both.
-    hovered.current = leaderOf(pills[i].orbit - 1);
+    hovered.current = rotatingNow.current ? ROTATING.leader : leaderOf(pills[i].orbit - 1);
     layerRef.current?.setAttribute('data-hover', '');
     pillRefs.current[i]?.setAttribute('data-active', '');
   };

@@ -139,25 +139,29 @@ export function buildTrack(scene: Scene, r: number, size: Size): Track {
 
 /**
  * Where a pill is at track position `pos` (degrees along the track, any value;
- * it wraps). Returns the ring angle and an opacity for the segment-end fade.
+ * it wraps). Returns the ring angle, an opacity for the segment-end fade, and
+ * `stretch`: which segment it is on, counted across laps, so a caller can tell
+ * the moment a pill wraps to a new stretch even if a frame skips the fade.
  */
-export function placeOnTrack(track: Track, pos: number): { deg: number; opacity: number } {
+export function placeOnTrack(track: Track, pos: number): { deg: number; opacity: number; stretch: number } {
   const { segments, length } = track;
-  if (length <= 0) return { deg: -90, opacity: 0 };
-  let p = ((pos % length) + length) % length;
+  if (length <= 0) return { deg: -90, opacity: 0, stretch: 0 };
+  const lap = Math.floor(pos / length) * segments.length;
+  let p = pos - Math.floor(pos / length) * length;
   const fade = fadeDeg(track.r);
-  for (const [a, b] of segments) {
+  for (let i = 0; i < segments.length; i++) {
+    const [a, b] = segments[i];
     const span = b - a;
     if (p <= span) {
       const edge = Math.min(p, span - p);
       const t = Math.min(1, edge / fade);
       // smoothstep, so the fade has no hard corner at either end
-      return { deg: a + p, opacity: t * t * (3 - 2 * t) };
+      return { deg: a + p, opacity: t * t * (3 - 2 * t), stretch: lap + i };
     }
     p -= span;
   }
   const [, last] = segments[segments.length - 1];
-  return { deg: last, opacity: 0 };
+  return { deg: last, opacity: 0, stretch: lap + segments.length - 1 };
 }
 
 function scaled(size: Size, k: number): Size {

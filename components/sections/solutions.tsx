@@ -330,7 +330,8 @@ function SolutionBlock({
                 'active:duration-[80ms]',
                 // Only the movement waits on prefers-reduced-motion.
                 'motion-safe:hover:scale-105 motion-safe:active:scale-95',
-                dark ? 'bg-white font-mono text-black' : 'bg-black font-mono-alt text-white'
+                // Commit Mono on both cards, like every other button on the site.
+                dark ? 'bg-white font-mono text-black' : 'bg-black font-mono text-white'
               )}
             >
               {/* Only the label dims on press; the board keeps the fill solid. */}
@@ -350,7 +351,7 @@ function SolutionBlock({
                   // Outline/secondary: the card's ink, filling to solid on hover.
                   dark
                     ? 'border-white/70 font-mono text-white hover:bg-white hover:text-black active:bg-white active:text-black'
-                    : 'border-black/60 font-mono-alt text-black hover:bg-black hover:text-white active:bg-black active:text-white'
+                    : 'border-black/60 font-mono text-black hover:bg-black hover:text-white active:bg-black active:text-white'
                 )}
               >
                 <span className="transition-opacity duration-[80ms] ease-out group-active/cta2:opacity-70">

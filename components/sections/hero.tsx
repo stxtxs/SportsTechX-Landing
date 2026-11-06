@@ -33,6 +33,10 @@ export function Hero() {
           priority
           className="object-contain dark:opacity-40 dark:invert dark:hue-rotate-180"
         />
+        {/* The S logo is its own file on the same 1586 canvas, so it lands in
+            exactly the same spot but skips the rings' dark-mode filter: the
+            brand pink stays the same in both themes. */}
+        <Image src="/icons/epicentre-logo.svg" alt="" fill priority className="object-contain" />
       </div>
 
       <div // 17%, against the artboard's own 22.3% (224 of the 1004 hero). The
