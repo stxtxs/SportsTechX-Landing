@@ -22,8 +22,12 @@ import { cn } from '@/lib/utils';
  * 1920 wide). A short laptop window scrolls a little instead.
  */
 export function Hero() {
+  /* Phone floor 720px: below it the orbit has no room under the buttons and
+     every pill (FOUNDERS / INVESTORS included) is hidden. Under 360px wide the
+     copy wraps longer and needs ~711px, so the floor rises again or the second
+     button is clipped. */
   return (
-    <section id="top" className="hero-frame relative isolate h-[100svh] min-h-[640px] overflow-hidden bg-hero lg:min-h-[760px]">
+    <section id="top" className="hero-frame relative isolate h-[100svh] min-h-[720px] max-[359px]:min-h-[760px] overflow-hidden bg-hero lg:min-h-[760px]">
       {/* Epicentre motif, exported from Figma as a single SVG. Sized off the
           frame's height so the orbits keep their proportions at any viewport. */}
       <div

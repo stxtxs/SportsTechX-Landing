@@ -3,6 +3,7 @@
 import { useEffect, useState, Fragment, type CSSProperties } from 'react';
 import { BlurImage } from '@/components/blur-image';
 import { Carousel } from '@/components/carousel';
+import { openEarlyAccess } from '@/components/early-access-modal';
 import { SectionIntro } from '@/components/section-intro';
 import { solutions, type SolutionCard, type Testimonial } from '@/lib/content';
 import type { SiteItem } from '@/lib/site-content';
@@ -212,6 +213,7 @@ export function Solutions({
               >
                 <SolutionBlock
                   card={card}
+                  shown={shown}
                   testimonials={testimonials?.[card.id]}
                   preview={card.previewSlot === undefined ? undefined : previews?.[card.previewSlot]}
                 />
@@ -226,10 +228,13 @@ export function Solutions({
 
 function SolutionBlock({
   card,
+  shown,
   testimonials,
   preview,
 }: {
   card: SolutionCard;
+  /** Only the shown card's quotes step on their timer. */
+  shown: boolean;
   testimonials?: Testimonial[];
   preview?: SiteItem;
 }) {
@@ -334,6 +339,15 @@ function SolutionBlock({
             <a
               href={card.ctaHref}
               {...(card.ctaHref.startsWith('http') ? { target: '_blank', rel: 'noreferrer' } : {})}
+              {...(card.earlyAccess
+                ? {
+                    'aria-haspopup': 'dialog' as const,
+                    onClick: (e: React.MouseEvent) => {
+                      e.preventDefault();
+                      openEarlyAccess(card.earlyAccess!);
+                    },
+                  }
+                : {})}
               className={cn(
                 'card-cta group/cta tracked inline-flex h-[42px] items-center justify-center rounded-full px-6 text-label',
                 // Both cards converge on the brand pink with white type — the
@@ -404,8 +418,10 @@ function SolutionBlock({
 
       </div>
 
-      {/* ---------- green band ---------- */}
-      <div className="card-band relative bg-green">
+      {/* ---------- green band ----------
+          With no testimonials below it, the band takes the spare height, so
+          the card still ends at the band rather than on an empty strip. */}
+      <div className={cn('card-band relative bg-green', quotes.length === 0 && 'flex-1')}>
         <div className="card-cases flex flex-col lg:flex-row lg:items-start">
           {card.features.map((feature, i) => {
             const icon = art(`icon-${iconSet}-${i + 1}`);
@@ -471,7 +487,7 @@ function SolutionBlock({
             // loops, so it reads like the arrows firing on a timer; the arrows
             // always work too, one quote per press as on every carousel. No
             // center hairline: it would cut through the stepping cards.
-            autoAdvance={6000}
+            autoAdvance={shown ? 6000 : undefined}
             alwaysLoop
             className="card-carousel"
             trackClassName="gap-0"

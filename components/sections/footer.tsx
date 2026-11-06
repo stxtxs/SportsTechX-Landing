@@ -87,7 +87,7 @@ export function Footer() {
       <div className="footer-rig container-page">
         <span aria-hidden className="footer-rule footer-rule-top mt-12 block h-px w-full bg-line/50 dark:bg-line" />
 
-        <div className="footer-details relative mt-12 grid gap-12 lg:grid-cols-4">
+        <div className="footer-details relative mt-12 grid grid-cols-1 gap-12 lg:grid-cols-4">
           <div className="footer-col-1 flex flex-col gap-[18px]">
             {/* The artboard ships one pink lockup for every placement; black
                 here is a brand call from the client, so it is filtered rather

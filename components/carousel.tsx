@@ -281,8 +281,8 @@ export function Carousel({
       {/* Each arrow moves the cards the way it points: left slides the rail
           left (on to later cards), right slides it right (back to earlier
           ones). The same on all three sites. */}
-      <Arrow side="left" disabled={!looping && atEnd} onClick={() => page(1)} onHold={pause} onRelease={resume} className={arrowClassName} label={`${label}: move left`} />
-      <Arrow side="right" disabled={!looping && atStart} onClick={() => page(-1)} onHold={pause} onRelease={resume} className={arrowClassName} label={`${label}: move right`} />
+      <Arrow side="left" disabled={!looping && atEnd} onClick={() => page(1)} onHold={pause} onRelease={resume} className={arrowClassName} label={`${label}: next`} />
+      <Arrow side="right" disabled={!looping && atStart} onClick={() => page(-1)} onHold={pause} onRelease={resume} className={arrowClassName} label={`${label}: previous`} />
         </>
       )}
     </div>

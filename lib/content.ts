@@ -5,6 +5,7 @@
 
 import type { StaticImageData } from 'next/image';
 import type { HeroPill } from '@/components/hero-orbits';
+import type { EarlyAccessProduct } from '@/components/early-access-modal';
 
 /**
  * Images are either a build-time static import (everything decoded from the
@@ -189,6 +190,9 @@ export type SolutionCard = {
   ctaHref: string;
   /** Optional secondary CTA beside the primary one (e.g. "Book a call"). */
   cta2?: { label: string; href: string };
+  /** The CTA opens the early-access form for this product; ctaHref stays as
+   *  the no-JavaScript fallback. */
+  earlyAccess?: EarlyAccessProduct;
   features: { title: string; points: string[] }[];
   /** Quotes under the band. Every card has them: the cards share one template. */
   testimonials: Testimonial[];
@@ -223,6 +227,7 @@ export const navMenu = [
       // role and need that show it. Atlas opens Atlas Raise (founder view).
       { label: 'ATLAS', href: '/#solutions', initial: 'A', sector: 'atlas-raise' },
       { label: 'PLAYMAKERS', href: '/#solutions', initial: 'P', sector: 'playmakers' },
+      { label: 'BOARDROOM', href: '/#solutions', initial: 'B', sector: 'boardroom' },
     ],
   },
 ];
@@ -404,7 +409,9 @@ export const solutions = {
       title: "Where sports tech's\nbest investments\ntake shape.",
       blurb: "A private network for sports tech's leading investors.\nLaunching with 20 founding members.",
       cta: 'REQUEST EARLY ACCESS',
-      // TBC: no early-access form yet, so the request arrives by email.
+      // Opens the early-access form (stored + emailed to the team by the
+      // platform API). The mailto is only the no-JavaScript fallback.
+      earlyAccess: 'boardroom',
       ctaHref: 'mailto:hello@sportstechx.com?subject=Boardroom%20early%20access',
       icons: 'boardroom',
       // Coming soon: no quotes yet, so the card ends at the band.
@@ -591,7 +598,7 @@ export const footer = {
 
 export const mobileMenu = {
   groups: [
-    { title: 'SOLUTIONS', links: [{ label: 'FOR FOUNDERS', href: '/#solutions' }, { label: 'FOR INVESTORS', href: '/#solutions' }] },
+    { title: 'SOLUTIONS', links: [{ label: 'FOR FOUNDERS', href: '/#solutions', sector: 'founders' }, { label: 'FOR INVESTORS', href: '/#solutions', sector: 'investors' }] },
     { title: 'MENU', links: [{ label: 'MEDIA', href: '/#media' }] },
     {
       title: 'CONNECT',

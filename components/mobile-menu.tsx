@@ -146,7 +146,11 @@ export function MobileMenuPanel() {
                     <a
                       href={link.href}
                       {...('newTab' in link && link.newTab ? { target: '_blank', rel: 'noreferrer' } : {})}
-                      onClick={close}
+                      onClick={() => {
+                        // Same as the nav dropdown: flips the Solutions selector.
+                        if ('sector' in link) window.dispatchEvent(new CustomEvent('stx:sector', { detail: link.sector }));
+                        close();
+                      }}
                       tabIndex={open ? undefined : -1}
                       className={cn(
                         // The board's other mobile active state: links drop to 0.5 on press.
