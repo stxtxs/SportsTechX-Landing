@@ -201,6 +201,11 @@ export function Solutions({
         <div className="solutions-rig mx-[calc(var(--gutter)*-1)] mt-10 grid grid-cols-1 lg:mx-0 lg:mt-[52px]">
           {solutions.cards.map((card) => {
             const shown = card.id === activeCard;
+            // A card without quotes (Boardroom, while coming soon) ends at its
+            // band instead of stretching to the tallest card: stretched, it was
+            // 500+px of empty card. The cell keeps its height, so switching
+            // still doesn't move the page.
+            const quoteless = !testimonials?.[card.id]?.length && card.testimonials.length === 0;
             return (
               <div
                 key={card.id}
@@ -208,6 +213,7 @@ export function Solutions({
                 aria-hidden={!shown}
                 className={cn(
                   'col-start-1 row-start-1 flex flex-col transition-[opacity,translate] duration-[250ms] ease-out motion-reduce:transition-none',
+                  quoteless && 'self-start',
                   shown ? 'opacity-100' : 'pointer-events-none translate-y-2 opacity-0'
                 )}
               >
@@ -421,7 +427,7 @@ function SolutionBlock({
       {/* ---------- green band ----------
           With no testimonials below it, the band takes the spare height, so
           the card still ends at the band rather than on an empty strip. */}
-      <div className={cn('card-band relative bg-green', quotes.length === 0 && 'flex-1')}>
+      <div className="card-band relative bg-green">
         <div className="card-cases flex flex-col lg:flex-row lg:items-start">
           {card.features.map((feature, i) => {
             const icon = art(`icon-${iconSet}-${i + 1}`);

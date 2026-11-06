@@ -43,6 +43,7 @@ export function EarlyAccessModal() {
       if (p in COPY) setProduct(p);
       setStatus({ kind: 'idle' });
       ref.current?.showModal();
+      requestAnimationFrame(() => ref.current?.querySelector<HTMLInputElement>('input[name="email"]')?.focus());
     };
     window.addEventListener('stx:early-access-open', open);
     return () => window.removeEventListener('stx:early-access-open', open);
@@ -95,7 +96,7 @@ export function EarlyAccessModal() {
           type="button"
           onClick={() => ref.current?.close()}
           aria-label="Close"
-          className="absolute right-6 top-6 z-10 grid size-9 place-items-center rounded-full border border-white/10 text-heading/60 transition-colors hover:border-white/20 hover:text-heading"
+          className="absolute right-6 top-6 z-10 grid size-9 place-items-center rounded-full border border-black/10 dark:border-white/10 text-heading/60 transition-colors hover:border-white/20 hover:text-heading"
         >
           <svg viewBox="0 0 24 24" aria-hidden className="size-5" fill="none" stroke="currentColor" strokeWidth={1.5}>
             <path d="M6 6 18 18M18 6 6 18" />
@@ -107,7 +108,7 @@ export function EarlyAccessModal() {
           <h2 id={`${id}-title`} className="font-display text-[34px] leading-[1.02] text-heading uppercase tracking-[0.02em] sm:text-[40px]">
             {status.kind === 'done' ? "You're on the list" : copy.title}
           </h2>
-          <p className="max-w-[42ch] font-sans text-body leading-[1.6] text-heading/70">
+          <p role="status" className="max-w-[42ch] font-sans text-body leading-[1.6] text-heading/70">
             {status.kind === 'done'
               ? "Thanks — we've got your request and the team will be in touch soon."
               : copy.lead}
@@ -117,6 +118,7 @@ export function EarlyAccessModal() {
         {status.kind === 'done' ? (
           <button
             type="button"
+            autoFocus
             onClick={() => ref.current?.close()}
             className="tracked relative h-12 self-start rounded-full bg-accent-2 px-7 font-mono text-cta text-white shadow-cta transition-colors hover:bg-black"
           >

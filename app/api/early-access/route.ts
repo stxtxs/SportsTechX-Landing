@@ -9,7 +9,8 @@ const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const str = (v: unknown, max: number) => (typeof v === 'string' ? v.trim().slice(0, max) : undefined) || undefined;
 
 export async function POST(req: Request) {
-  const body = (await req.json().catch(() => ({}))) as Record<string, unknown>;
+  const raw: unknown = await req.json().catch(() => null);
+  const body = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>;
   const email = str(body.email, 320);
   if (!email || !EMAIL.test(email)) {
     return NextResponse.json({ error: 'Enter a valid email address.' }, { status: 400 });
@@ -33,6 +34,13 @@ export async function POST(req: Request) {
     signal: AbortSignal.timeout(10_000),
   }).catch(() => null);
 
+  // The API validates more strictly than the regex above (e.g. `a@b.c`).
+  if (res?.status === 400) {
+    return NextResponse.json({ error: 'Enter a valid email address.' }, { status: 400 });
+  }
+  if (res?.status === 429) {
+    return NextResponse.json({ error: 'Too many requests right now. Please try again in a minute.' }, { status: 429 });
+  }
   if (!res || !res.ok) {
     return NextResponse.json(
       { error: 'Something went wrong. Please try again, or email hello@sportstechx.com.' },
