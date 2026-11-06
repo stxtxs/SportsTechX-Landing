@@ -24,6 +24,20 @@ import { cn } from '@/lib/utils';
    the Atlas marquee so the three sites drift at the same rate. */
 const DRIFT_PX_PER_SEC = 50;
 
+/**
+ * The track's cards, in order. Looping copies sit in `display: contents`
+ * wrappers, which have no box, so their children are the real flex items; and
+ * the 1px hairlines between cards are flex items too, so they are skipped.
+ */
+function cardItems(track: HTMLElement): HTMLElement[] {
+  const items: HTMLElement[] = [];
+  for (const child of Array.from(track.children) as HTMLElement[]) {
+    if (getComputedStyle(child).display === 'contents') items.push(...(Array.from(child.children) as HTMLElement[]));
+    else items.push(child);
+  }
+  return items.filter((el) => el.offsetWidth > 2);
+}
+
 export function Carousel({
   children,
   className,
@@ -34,7 +48,6 @@ export function Carousel({
   autoAdvance,
   initialOffset = 0,
   alwaysLoop,
-  pageBy = 0.8,
 }: {
   children: React.ReactNode;
   className?: string;
@@ -61,14 +74,6 @@ export function Carousel({
    * everything is already visible and there is nothing to scroll to.
    */
   alwaysLoop?: boolean;
-  /**
-   * How far one arrow press travels, as a fraction of the visible width.
-   *
-   * 0.8 suits a continuous rail of small cards, where stopping part-way is
-   * natural. A layout with a fixed number of items per view must pass 1, or the
-   * press targets a fraction of an item and only scroll-snap saves it.
-   */
-  pageBy?: number;
 }) {
   const track = useRef<HTMLDivElement>(null);
   const paused = useRef(false);
@@ -170,6 +175,12 @@ export function Carousel({
     return () => cancelAnimationFrame(raf);
   }, [looping, autoScroll, initialOffset]);
 
+  /**
+   * One card per press, smoothly, as on Playmakers. The step is measured from
+   * the first two cards rather than assumed, so it is the real pitch including
+   * the gap and the hairline, at every breakpoint. Paging by a share of the
+   * track width moved several cards at once and lost the reader's place.
+   */
   const page = useCallback((dir: 1 | -1) => {
     const el = track.current;
     if (!el) return;
@@ -183,7 +194,8 @@ export function Carousel({
         paused.current = false;
       }, 800);
     }
-    const delta = dir * el.clientWidth * pageBy;
+    const [a, b] = cardItems(el);
+    const delta = dir * (a && b ? b.offsetLeft - a.offsetLeft : a ? a.offsetWidth : el.clientWidth);
     if (looping) {
       // The track carries two copies, so jumping by exactly one is invisible.
       // Without this a page near either end just clamped.
@@ -192,7 +204,7 @@ export function Carousel({
       else if (el.scrollLeft + delta > el.scrollWidth - el.clientWidth) el.scrollLeft -= half;
     }
     el.scrollBy({ left: delta, behavior: 'smooth' });
-  }, [autoScroll, looping, pageBy]);
+  }, [autoScroll, looping]);
 
   // Discrete auto-advance: page forward one view on a timer (the same move an
   // arrow press makes), pausing on hover/focus and under reduced motion. This is

@@ -443,11 +443,10 @@ function SolutionBlock({
         <div className="card-strip relative mt-6">
           <Carousel
             label={`${card.eyebrow} testimonials`}
-            // Two quotes to a view, so a press moves exactly two. Steps forward
-            // one view every 6s (not a continuous drift) and loops, so it reads
-            // like the arrows firing on a timer; the arrows always work too. No
+            // Steps forward one quote every 6s (not a continuous drift) and
+            // loops, so it reads like the arrows firing on a timer; the arrows
+            // always work too, one quote per press as on every carousel. No
             // center hairline: it would cut through the stepping cards.
-            pageBy={1}
             autoAdvance={6000}
             alwaysLoop
             className="card-carousel"
