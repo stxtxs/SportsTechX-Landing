@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { fitOrbits, placeOnTrack, type Fit, type Rect, type Scene } from '@/lib/orbit-geometry';
@@ -84,6 +84,31 @@ const ROTATING = {
   leader: 0,
 };
 
+/**
+ * A ring the pills are using that the motif does not draw (the backup rings
+ * on short laptops and small phones). Drawn in the motif's own style, so the
+ * pills never look as if they have slipped off their orbit.
+ */
+type ExtraRing = { cx: number; cy: number; r: number; R: number };
+
+/**
+ * The radii of every orbit in use that is not one of the motif's rings.
+ * Desktop only: on phones the backup rings sit a few px apart, and two extra
+ * outlines that close together read as clutter rather than an orbit.
+ */
+function extraRingsOf(layout: Layout | null): ExtraRing[] {
+  if (!layout || !window.matchMedia('(min-width: 64rem)').matches) return [];
+  const { cx, cy } = layout.scene;
+  const R = layout.R;
+  const radii = new Set<number>();
+  for (const track of layout.fit.tracks) {
+    if (!track) continue;
+    const drawn = RING.some((share) => Math.abs(share * R - track.r) < 0.5);
+    if (!drawn) radii.add(Math.round(track.r * 10) / 10);
+  }
+  return [...radii].map((r) => ({ cx, cy, r, R }));
+}
+
 /** The logo's box in the motif, relative to its centre, as a share of radius. */
 const LOGO = { l: -26 / 793, r: 26 / 793, t: -66 / 793, b: 14 / 793 };
 /** Clear space around the copy, logo and frame edges, in px. */
@@ -109,7 +134,7 @@ function avoidRects(el: Element, origin: DOMRect): Rect[] {
 }
 
 /** `rotating`: the phone fallback, with fit.tracks = [Founders orbit, rotating orbit]. */
-type Layout = { scene: Scene; fit: Fit; rotating?: { slots: number } };
+type Layout = { scene: Scene; fit: Fit; R: number; rotating?: { slots: number } };
 
 function measure(layer: HTMLElement, pills: HTMLElement[], meta: HeroPill[]): Layout | null {
   const section = layer.closest('section');
@@ -151,7 +176,7 @@ function measure(layer: HTMLElement, pills: HTMLElement[], meta: HeroPill[]): La
     };
   });
   const fit = fitOrbits(scene, orbits);
-  if (fit.tracks.every(Boolean)) return { scene, fit };
+  if (fit.tracks.every(Boolean)) return { scene, fit, R };
 
   // Not every orbit fits (phones): rotate all six grey names through the
   // slots that do, most slots first, so none of them is left out.
@@ -166,9 +191,9 @@ function measure(layer: HTMLElement, pills: HTMLElement[], meta: HeroPill[]): La
         lockedTo: ROTATING.leader,
       },
     ]);
-    if (rotating.tracks[1]) return { scene, fit: rotating, rotating: { slots } };
+    if (rotating.tracks[1]) return { scene, fit: rotating, R, rotating: { slots } };
   }
-  return { scene, fit };
+  return { scene, fit, R };
 }
 
 /**
@@ -184,6 +209,7 @@ export function HeroOrbits({ pills }: { pills: HeroPill[] }) {
   const hovered = useRef<number | null>(null);
   /** Whether the phone's rotating layout is in use (every pill shares one clock). */
   const rotatingNow = useRef(false);
+  const [extraRings, setExtraRings] = useState<ExtraRing[]>([]);
 
   useEffect(() => {
     const layer = layerRef.current;
@@ -337,6 +363,8 @@ export function HeroOrbits({ pills }: { pills: HeroPill[] }) {
       if (key !== measuredFor || !layout) {
         measuredFor = key;
         layout = measure(layer, pillEls, pills);
+        const extra = extraRingsOf(layout);
+        setExtraRings((prev) => (JSON.stringify(prev) === JSON.stringify(extra) ? prev : extra));
         const slotsNow = layout?.rotating?.slots ?? 0;
         if (!slotsNow) rotation = null;
         else if (!rotation || rotation.shown.length !== slotsNow) resetRotation(slotsNow);
@@ -417,6 +445,9 @@ export function HeroOrbits({ pills }: { pills: HeroPill[] }) {
       ref={layerRef}
       className="group/orbits pointer-events-none absolute inset-0 -z-20 opacity-0 transition-opacity duration-700 data-[ready]:opacity-100"
     >
+      {extraRings.map((ring) => (
+        <BackupRing key={ring.r} ring={ring} />
+      ))}
       {pills.map((pill, i) => {
         const primary = pill.orbit === 1;
         return (
@@ -466,5 +497,51 @@ export function HeroOrbits({ pills }: { pills: HeroPill[] }) {
         );
       })}
     </div>
+  );
+}
+
+/**
+ * One backup ring in the motif's style: a white outline over a soft green
+ * radial wash at 80%, like the motif's second ring, filling only the band
+ * outside the motif's inner ring. The motif's gradients all
+ * share one shape, centred 3.4 radii above the ring and reaching 5.55 radii,
+ * so this one is built from the same proportions. Same dark-mode treatment as
+ * the motif image.
+ */
+function BackupRing({ ring }: { ring: ExtraRing }) {
+  const { cx, cy, r, R } = ring;
+  const stroke = (2.5 / 793) * R;
+  const pad = stroke;
+  const size = 2 * (r + pad);
+  const id = `orbit-backup-${Math.round(r)}`;
+  const c = r + pad;
+  const inner = Math.min(RING[0] * R, r);
+  const circle = (rad: number) => `M ${c - rad} ${c} a ${rad} ${rad} 0 1 0 ${2 * rad} 0 a ${rad} ${rad} 0 1 0 ${-2 * rad} 0 Z`;
+  const band = `${circle(r)} ${circle(inner)}`;
+  return (
+    <svg
+      aria-hidden
+      className="absolute opacity-80 dark:opacity-40 dark:invert dark:hue-rotate-180"
+      style={{ left: cx - r - pad, top: cy - r - pad, width: size, height: size }}
+      viewBox={`0 0 ${size} ${size}`}
+    >
+      <defs>
+        <radialGradient
+          id={id}
+          gradientUnits="userSpaceOnUse"
+          cx={r + pad}
+          cy={r + pad - 3.4 * r}
+          r={5.55 * r}
+        >
+          <stop stopColor="#4BAF8E" />
+          <stop offset="0.620192" stopColor="#FFFDFD" />
+        </radialGradient>
+      </defs>
+      {/* The wash fills only the band outside the motif's inner ring: in the
+          motif each smaller ring sits on top, so the inner ring and the S logo
+          must not be tinted. */}
+      <path d={band} fill={`url(#${id})`} fillOpacity={0.59} fillRule="evenodd" />
+      <circle cx={c} cy={c} r={r} fill="none" stroke="white" strokeWidth={stroke} />
+    </svg>
   );
 }
