@@ -351,7 +351,7 @@ export const solutions = {
       // INVESTOR TOGGLE CONTENT" feedback (2026-10-21); final copy TBC.
       eyebrow: 'atlas',
       previewSlot: 2,
-      title: 'Sourcing your next investment?',
+      title: 'Sourcing your next deal?',
       blurb:
         'Find relevant deals, assess companies and strengthen your due diligence with SportsTechX market data and analysis.',
       cta: 'TRY ATLAS SCOUT',
