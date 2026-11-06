@@ -61,7 +61,7 @@ export function EarlyAccessModal() {
         email: form.get('email'),
         name: form.get('name'),
         company: form.get('company'),
-        website: form.get('website'),
+        website: form.get('stx_hp'),
       }),
     }).catch(() => null);
     if (res?.ok) {
@@ -133,7 +133,9 @@ export function EarlyAccessModal() {
             <label htmlFor={`${id}-company`} className="sr-only">Firm</label>
             <input id={`${id}-company`} name="company" autoComplete="organization" placeholder="Firm" maxLength={200} className={FIELD} />
             {/* Honeypot: invisible to people, filled by bots. */}
-            <input name="website" tabIndex={-1} autoComplete="off" aria-hidden className="absolute -left-[9999px] size-px opacity-0" />
+            {/* Not named "website": autofill and password managers fill that, and
+                the request was then silently dropped as a bot. */}
+            <input name="stx_hp" tabIndex={-1} autoComplete="off" aria-hidden data-lpignore="true" data-1p-ignore="true" data-bwignore="true" data-form-type="other" className="absolute -left-[9999px] size-px opacity-0" />
             <button
               type="submit"
               disabled={status.kind === 'loading'}
