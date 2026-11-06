@@ -241,6 +241,8 @@ function SolutionBlock({
   // variant, not id: the two Atlas cards share one wordmark + asset set.
   const dark = card.variant === 'playmakers';
   const mark = art(`wordmark-${card.variant}`);
+  const iconSet = card.icons ?? card.variant;
+  const panelSrc = preview?.url || card.panelImage;
 
   return (
     <article
@@ -272,10 +274,13 @@ function SolutionBlock({
             } as CSSProperties
           }
         >
-          <span className="card-wordmark block">
+          <span className={cn('card-wordmark block', card.badge && 'flex items-center gap-4')}>
             {card.wordmarkText ? (
               // No vector for this product yet: set the name in the display face.
-              <span className="card-wordmark-text tracked block font-display leading-none text-white">
+              <span
+                className="card-wordmark-text tracked block font-display leading-none text-white"
+                style={card.wordmarkColor ? { color: card.wordmarkColor } : undefined}
+              >
                 {card.wordmarkText}
               </span>
             ) : (
@@ -290,12 +295,23 @@ function SolutionBlock({
                 {card.tier.label}
               </span>
             )}
+            {/* e.g. COMING SOON: an outlined label in the wordmark's colour. */}
+            {card.badge && (
+              <span
+                className="inline-flex h-[28px] shrink-0 items-center rounded-full border-[1.5px] px-3 font-mono text-[11px] tracking-[0.1em] whitespace-nowrap"
+                style={{ color: card.wordmarkColor, borderColor: card.wordmarkColor }}
+              >
+                {card.badge}
+              </span>
+            )}
           </span>
 
           <h3
             className={cn(
               'card-headline tracked mt-6 font-display text-card leading-[0.96] whitespace-pre-line',
-              dark ? 'text-green dark:text-green-2' : 'text-[#22785b] dark:text-green-2'
+              // #3FA58C on the dark cards: the band green was too dark against
+              // navy (about 5.7:1 now).
+              dark ? 'text-[#3fa58c]' : 'text-[#22785b] dark:text-green-2'
             )}
           >
             {card.title}
@@ -303,7 +319,7 @@ function SolutionBlock({
 
           <p
             className={cn(
-              'card-blurb mt-5 max-w-[514px] font-sans text-body leading-[1.72]',
+              'card-blurb mt-5 max-w-[514px] font-sans text-body leading-[1.72] whitespace-pre-line',
               dark ? 'text-white/70' : 'text-black/60'
             )}
           >
@@ -369,15 +385,20 @@ function SolutionBlock({
               : 'border-[#bcecd4] bg-white/85 dark:border-white/50 dark:bg-[#d6dced]'
           )}
         >
-          {/* The artboard leaves this panel empty; an uploaded preview fills it. */}
-          {preview?.url && (
+          {/* An uploaded preview fills the panel, or the card's built-in photo. */}
+          {panelSrc && (
             <BlurImage
-              src={preview.url}
-              alt={preview.alt || ''}
+              src={panelSrc}
+              alt={preview?.alt || ''}
               fill
               sizes="(min-width: 1024px) 676px, 100vw"
               className="object-cover"
             />
+          )}
+          {card.panelTag && (
+            <span className="absolute top-5 left-5 z-10 rounded-[4px] border-[1.5px] border-accent-2 bg-[#0b0e1d]/85 px-3 py-1.5 font-mono text-[11px] tracking-[0.12em] text-white lg:text-[13px]">
+              {card.panelTag}
+            </span>
           )}
         </div>
 
@@ -387,7 +408,7 @@ function SolutionBlock({
       <div className="card-band relative bg-green">
         <div className="card-cases flex flex-col lg:flex-row lg:items-start">
           {card.features.map((feature, i) => {
-            const icon = art(`icon-${card.variant}-${i + 1}`);
+            const icon = art(`icon-${iconSet}-${i + 1}`);
             return (
               <Fragment key={feature.title}>
                 {i > 0 && (
@@ -398,7 +419,7 @@ function SolutionBlock({
                     <span className="card-numbox grid size-[52px] shrink-0 place-items-center rounded-[45px] bg-white">
                       {/* eslint-disable-next-line @next/next/no-img-element -- see above */}
                       <img
-                        src={`/vectors/icon-${card.variant}-${i + 1}.svg`}
+                        src={`/vectors/icon-${iconSet}-${i + 1}.svg`}
                         alt=""
                         style={{ '--iw': icon.w, '--ih': icon.h } as CSSProperties}
                         className="card-icon size-6 object-contain"
@@ -429,7 +450,10 @@ function SolutionBlock({
         </div>
       </div>
 
-      {/* ---------- testimonials ---------- */}
+      {/* ---------- testimonials ----------
+          Skipped when a card has none (Boardroom, while it is coming soon),
+          so that card ends at the band. */}
+      {quotes.length > 0 && (
       <div className="card-stories relative flex-1">
         <p
           className={cn(
@@ -501,6 +525,7 @@ function SolutionBlock({
           </Carousel>
         </div>
       </div>
+      )}
     </article>
   );
 }

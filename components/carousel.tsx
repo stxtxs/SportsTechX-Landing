@@ -278,8 +278,11 @@ export function Carousel({
           testimonials hit this whenever the design's two stories both fit. */}
       {!(atStart && atEnd && !looping) && (
         <>
-      <Arrow side="left" disabled={!looping && atStart} onClick={() => page(-1)} onHold={pause} onRelease={resume} className={arrowClassName} label={`${label}: previous`} />
-      <Arrow side="right" disabled={!looping && atEnd} onClick={() => page(1)} onHold={pause} onRelease={resume} className={arrowClassName} label={`${label}: next`} />
+      {/* Each arrow moves the cards the way it points: left slides the rail
+          left (on to later cards), right slides it right (back to earlier
+          ones). The same on all three sites. */}
+      <Arrow side="left" disabled={!looping && atEnd} onClick={() => page(1)} onHold={pause} onRelease={resume} className={arrowClassName} label={`${label}: move left`} />
+      <Arrow side="right" disabled={!looping && atStart} onClick={() => page(-1)} onHold={pause} onRelease={resume} className={arrowClassName} label={`${label}: move right`} />
         </>
       )}
     </div>

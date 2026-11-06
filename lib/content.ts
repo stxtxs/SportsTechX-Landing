@@ -170,6 +170,16 @@ export type SolutionCard = {
    * (Boardroom). When set, it replaces /vectors/wordmark-{variant}.svg.
    */
   wordmarkText?: string;
+  /** Colour of the text wordmark (default white). */
+  wordmarkColor?: string;
+  /** Small outlined label beside the wordmark, e.g. COMING SOON. */
+  badge?: string;
+  /** Label pinned to the photo panel's top-left corner. */
+  panelTag?: string;
+  /** Built-in photo for the panel, used until a CMS preview is uploaded. */
+  panelImage?: string;
+  /** Icon set for the green band, /vectors/icon-{icons}-{1..3}.svg (default: the variant's). */
+  icons?: string;
   /** Which CMS card preview (Site assets) fills the photo panel, if any. */
   previewSlot?: number;
   title: string;
@@ -377,42 +387,51 @@ export const solutions = {
       ],
     },
     {
-      // Investor > Co-investors & peer networking. PLACEHOLDER copy until the
-      // Boardroom content lands: same dark layout as Playmakers, no wordmark
-      // vector yet (text stand-in), links to the old Investors Circle page.
+      // Investor > Co-investors & peer networking. Copy from the Boardroom
+      // card mockup (2026-11-06). Same dark template as Playmakers, plus a
+      // COMING SOON badge, an orange text wordmark and its own band icons.
       id: 'boardroom',
       variant: 'playmakers',
       eyebrow: 'BOARDROOM',
       wordmarkText: 'BOARDROOM',
-      title: 'Where sports tech\ninvestors meet.',
-      blurb: 'A private peer network for investors backing the future of sports.',
-      cta: 'EXPLORE BOARDROOM',
-      ctaHref: 'https://joinplaymakers.co',
-      // Placeholder quotes, as the Atlas cards use, until Boardroom's own land.
-      testimonials: [testimonial, testimonial, testimonial, testimonial],
+      wordmarkColor: '#f29a4a',
+      badge: 'COMING SOON',
+      // A fourth Site assets preview replaces the built-in photo (from the
+      // Boardroom deck) once one is uploaded.
+      previewSlot: 3,
+      panelImage: '/images/boardroom-card.jpg',
+      panelTag: 'FOR SPORTS TECH INVESTORS',
+      title: "Where sports tech's\nbest investments\ntake shape.",
+      blurb: "A private network for sports tech's leading investors.\nLaunching with 20 founding members.",
+      cta: 'REQUEST EARLY ACCESS',
+      // TBC: no early-access form yet, so the request arrives by email.
+      ctaHref: 'mailto:hello@sportstechx.com?subject=Boardroom%20early%20access',
+      icons: 'boardroom',
+      // Coming soon: no quotes yet, so the card ends at the band.
+      testimonials: [],
       features: [
         {
-          title: 'Co-investors you can trust',
+          title: 'Early access to Playmakers founders',
           points: [
-            'Meet investors active in sports tech.',
-            'Share deal flow and build syndicates.',
-            'Compare notes on rounds and valuations.',
+            'Meet pre-vetted, high-growth founders before they raise.',
+            'Get priority seats at joint Boardroom × Playmakers events.',
+            'Build conviction by seeing founders operate up close.',
           ],
         },
         {
-          title: 'Insider sports industry network',
+          title: 'Deal flow from trusted peers',
           points: [
-            'Connect with leagues, teams and operators.',
-            'Get curated intros to founders worth meeting.',
-            'Join exclusive member events.',
+            'See opportunities vetted by SportsTechX and fellow members.',
+            'Get intros to founders that match your thesis.',
+            'Swap notes on live deals, off the record.',
           ],
         },
         {
-          title: 'Insider sports tech intelligence',
+          title: 'Co-invest with less risk',
           points: [
-            'Tap the best knowledge in sports tech, anytime.',
-            'Sharpen your thesis with world-class market data.',
-            'Stay ahead of emerging trends, companies and deals.',
+            'Find co-investors and build syndicates.',
+            'Pressure-test your thesis with peers.',
+            'Back every deal with Atlas Scout data.',
           ],
         },
       ],
