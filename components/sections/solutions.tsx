@@ -123,24 +123,34 @@ export function Solutions({
     setNeed(0);
   };
 
-  // Nav, footer and hero links send a role id ("founders") or a card id
-  // ("playmakers") as they scroll here; either opens the matching view.
+  // A role id ("founders") or card id ("boardroom") opens the matching view.
+  // It arrives two ways: in the URL hash (`/#boardroom`), so a link from any
+  // page or site lands on the right tab, and as `stx:sector` from links on
+  // this page (the hash alone would not fire again if it is already set).
   useEffect(() => {
-    const onSector = (e: Event) => {
-      const id = (e as CustomEvent<string>).detail;
+    const select = (id: string): boolean => {
       if (solutions.sectors.some((s) => s.id === id)) {
         setSectorId(id);
         setNeed(0);
-        return;
+        return true;
       }
       const found = findCard(id);
-      if (found) {
-        setSectorId(found.sector);
-        setNeed(found.need);
-      }
+      if (!found) return false;
+      setSectorId(found.sector);
+      setNeed(found.need);
+      return true;
     };
+    // No element carries these ids, so the browser does not scroll: we do.
+    const reveal = () => requestAnimationFrame(() => document.getElementById('solutions')?.scrollIntoView());
+    const onSector = (e: Event) => { if (select((e as CustomEvent<string>).detail)) reveal(); };
+    const fromHash = () => { if (select(decodeURIComponent(window.location.hash.slice(1)))) reveal(); };
+    fromHash();
     window.addEventListener('stx:sector', onSector);
-    return () => window.removeEventListener('stx:sector', onSector);
+    window.addEventListener('hashchange', fromHash);
+    return () => {
+      window.removeEventListener('stx:sector', onSector);
+      window.removeEventListener('hashchange', fromHash);
+    };
   }, []);
 
   return (
@@ -156,7 +166,11 @@ export function Solutions({
                 <button
                   key={s.id}
                   type="button"
-                  onClick={() => pickSector(s.id)}
+                  onClick={() => {
+                    pickSector(s.id);
+                    // The URL names the view, so a copied link opens it.
+                    history.replaceState(null, '', `#${s.id}`);
+                  }}
                   aria-pressed={s.id === sector.id}
                   className={pillClass(s.id === sector.id)}
                 >
@@ -172,7 +186,10 @@ export function Solutions({
                   {i > 0 && <span className={cn(LABEL, 'px-1')}>or</span>}
                   <button
                       type="button"
-                      onClick={() => setNeed(i)}
+                      onClick={() => {
+                        setNeed(i);
+                        history.replaceState(null, '', `#${n.card}`);
+                      }}
                       aria-pressed={i === need}
                       className={cn(pillClass(i === need), 'grid')}
                     >

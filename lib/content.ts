@@ -62,8 +62,8 @@ export const hero = {
   subhead: 'Connecting the people, intelligence and\ncapital transforming the business of sports.',
   ctas: [
     // `sector` preselects that role in the Solutions selector on the way down.
-    { label: 'FOR FOUNDERS', href: '/#solutions', sector: 'founders', variant: 'primary' as const },
-    { label: 'FOR INVESTORS', href: '/#solutions', sector: 'investors', variant: 'secondary' as const },
+    { label: 'FOR FOUNDERS', href: '/#founders', sector: 'founders', variant: 'primary' as const },
+    { label: 'FOR INVESTORS', href: '/#investors', sector: 'investors', variant: 'secondary' as const },
   ],
   /**
    * Orbiting category pills, grouped by orbit (see components/hero-orbits.tsx).
@@ -216,8 +216,8 @@ export const navMenu = [
       // sector: which Solutions toggle to activate on click (founders=OPERATOR,
       // investors=INVESTOR). Operator shows Atlas Raise + Playmakers; Investor
       // shows Atlas Scout.
-      { label: 'FOR FOUNDERS', href: '/#solutions', icon: '/icons/pill-founders.svg', w: 12, h: 12, sector: 'founders' },
-      { label: 'FOR INVESTORS', href: '/#solutions', icon: '/icons/pill-investors.svg', w: 14, h: 8, sector: 'investors' },
+      { label: 'FOR FOUNDERS', href: '/#founders', icon: '/icons/pill-founders.svg', w: 12, h: 12, sector: 'founders' },
+      { label: 'FOR INVESTORS', href: '/#investors', icon: '/icons/pill-investors.svg', w: 14, h: 8, sector: 'investors' },
     ],
   },
   {
@@ -225,9 +225,9 @@ export const navMenu = [
     items: [
       // `sector` may also name a card: the Solutions selector then opens the
       // role and need that show it. Atlas opens Atlas Raise (founder view).
-      { label: 'ATLAS', href: '/#solutions', initial: 'A', sector: 'atlas-raise' },
-      { label: 'PLAYMAKERS', href: '/#solutions', initial: 'P', sector: 'playmakers' },
-      { label: 'BOARDROOM', href: '/#solutions', initial: 'B', sector: 'boardroom' },
+      { label: 'ATLAS', href: '/#atlas-raise', initial: 'A', sector: 'atlas-raise' },
+      { label: 'PLAYMAKERS', href: '/#playmakers', initial: 'P', sector: 'playmakers' },
+      { label: 'BOARDROOM', href: '/#boardroom', initial: 'B', sector: 'boardroom' },
     ],
   },
 ];
@@ -318,7 +318,7 @@ export const solutions = {
       blurb:
         'Find the right investors, benchmark your company and sharpen your pitch with the SportsTechX intelligence layer.',
       cta: 'TRY ATLAS RAISE',
-      ctaHref: 'https://www.atlas.sportstechx.com',
+      ctaHref: 'https://www.atlas.sportstechx.com/#raise',
       cta2: { label: 'BOOK A CALL', href: 'https://cal.com/khyati/sportstechx' },
       testimonials: [testimonial, testimonial, testimonial, testimonial],
       tier: { label: 'RAISE', color: '#4580EC' },
@@ -360,7 +360,7 @@ export const solutions = {
       blurb:
         'Find relevant deals, assess companies and strengthen your due diligence with SportsTechX market data and analysis.',
       cta: 'TRY ATLAS SCOUT',
-      ctaHref: 'https://www.atlas.sportstechx.com/',
+      ctaHref: 'https://www.atlas.sportstechx.com/#scout',
       cta2: { label: 'BOOK A CALL', href: 'https://cal.com/khyati/sportstechx' },
       testimonials: [testimonial, testimonial, testimonial, testimonial],
       tier: { label: 'SCOUT', color: '#0FB86A' },
@@ -552,16 +552,16 @@ export const footer = {
         {
           title: 'By role',
           links: [
-            { label: 'For Founders', href: '/#solutions', sector: 'founders' },
-            { label: 'For Investors', href: '/#solutions', sector: 'investors' },
+            { label: 'For Founders', href: '/#founders', sector: 'founders' },
+            { label: 'For Investors', href: '/#investors', sector: 'investors' },
           ],
         },
         {
           title: 'By product',
           links: [
-            { label: 'Atlas', href: '/#solutions', sector: 'atlas-raise' },
-            { label: 'Playmakers', href: '/#solutions', sector: 'playmakers' },
-            { label: 'Boardroom', href: '/#solutions', sector: 'boardroom' },
+            { label: 'Atlas', href: '/#atlas-raise', sector: 'atlas-raise' },
+            { label: 'Playmakers', href: '/#playmakers', sector: 'playmakers' },
+            { label: 'Boardroom', href: '/#boardroom', sector: 'boardroom' },
           ],
         },
       ],
@@ -598,7 +598,7 @@ export const footer = {
 
 export const mobileMenu = {
   groups: [
-    { title: 'SOLUTIONS', links: [{ label: 'FOR FOUNDERS', href: '/#solutions', sector: 'founders' }, { label: 'FOR INVESTORS', href: '/#solutions', sector: 'investors' }] },
+    { title: 'SOLUTIONS', links: [{ label: 'FOR FOUNDERS', href: '/#founders', sector: 'founders' }, { label: 'FOR INVESTORS', href: '/#investors', sector: 'investors' }] },
     { title: 'MENU', links: [{ label: 'MEDIA', href: '/#media' }] },
     {
       title: 'CONNECT',
