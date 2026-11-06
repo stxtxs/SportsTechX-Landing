@@ -15,10 +15,15 @@ import { cn } from '@/lib/utils';
  * its centre is (757, 947): horizontally centred, 94.3% down, radius 79% of the
  * frame's height. Sizing it off the height rather than the width is what keeps
  * the composition intact when the frame is wider or shorter than the artboard.
+ *
+ * Desktop holds a 760px floor. The copy and buttons are a fixed-px stack while
+ * the motif scales with the height, so below ~740px the buttons cover the
+ * second ring and every orbit falls back a ring (measured at 1280, 1480 and
+ * 1920 wide). A short laptop window scrolls a little instead.
  */
 export function Hero() {
   return (
-    <section id="top" className="hero-frame relative isolate h-[100svh] min-h-[640px] overflow-hidden bg-hero">
+    <section id="top" className="hero-frame relative isolate h-[100svh] min-h-[640px] overflow-hidden bg-hero lg:min-h-[760px]">
       {/* Epicentre motif, exported from Figma as a single SVG. Sized off the
           frame's height so the orbits keep their proportions at any viewport. */}
       <div
