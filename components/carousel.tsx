@@ -46,14 +46,17 @@ function cardItems(track: HTMLElement): HTMLElement[] {
  * it is told, so relative steps carried the rounding forward until an
  * auto-advancing rail sat visibly off its cards. `a`/`b` are the first two cards.
  */
-function cardEdge(track: HTMLElement, a: HTMLElement, b: HTMLElement | undefined, dir: 1 | -1): number {
+function cardEdge(track: HTMLElement, a: HTMLElement, b: HTMLElement | undefined, dir: 1 | -1, from = track.scrollLeft): number {
   const ra = a.getBoundingClientRect();
   const stride = b ? b.getBoundingClientRect().left - ra.left : ra.width;
   const pad = parseFloat(getComputedStyle(track).scrollPaddingLeft) || 0;
   // The scroll position at which the first card sits on the snap edge.
   const base = track.scrollLeft + ra.left - (track.getBoundingClientRect().left + pad);
-  return base + (Math.round((track.scrollLeft - base) / stride) + dir) * stride;
+  return base + (Math.round((from - base) / stride) + dir) * stride;
 }
+
+/** How long a page() target counts as "still travelling" for the next press. */
+const STEP_MS = 700;
 
 export function Carousel({
   children,
@@ -95,6 +98,10 @@ export function Carousel({
   const track = useRef<HTMLDivElement>(null);
   const paused = useRef(false);
   const resumeAt = useRef<number | null>(null);
+  // Where the last arrow press is heading. A second press during that slide
+  // continues from there; rounding the half-travelled position instead could
+  // land on the same card and swallow the press.
+  const heading = useRef<{ left: number; at: number } | null>(null);
   const [atStart, setAtStart] = useState(true);
   const [atEnd, setAtEnd] = useState(true);
   /**
@@ -213,19 +220,28 @@ export function Carousel({
     }
     const [a, b] = cardItems(el);
     const delta = dir * (a && b ? b.offsetLeft - a.offsetLeft : a ? a.offsetWidth : el.clientWidth);
+    // A second press mid-slide continues from where the first is heading (not
+    // under the drift, which moves the rail itself).
+    const h = heading.current;
+    let from = !autoScroll && h && performance.now() - h.at < STEP_MS ? h.left : el.scrollLeft;
     if (looping) {
       // The track carries two copies, so jumping by exactly one is invisible.
       // Without this a page near either end just clamped.
       const half = el.scrollWidth / 2;
-      if (el.scrollLeft + delta < 0) el.scrollLeft += half;
-      else if (el.scrollLeft + delta > el.scrollWidth - el.clientWidth) el.scrollLeft -= half;
+      const shift = from + delta < 0 ? half : from + delta > el.scrollWidth - el.clientWidth ? -half : 0;
+      if (shift) {
+        el.scrollLeft += shift;
+        from += shift;
+      }
     }
     // The drift moves continuously and has no snap, so a relative step is right there.
     if (autoScroll || !a) {
       el.scrollBy({ left: delta, behavior: 'smooth' });
       return;
     }
-    el.scrollTo({ left: cardEdge(el, a, b, dir), behavior: 'smooth' });
+    const left = cardEdge(el, a, b, dir, from);
+    heading.current = { left, at: performance.now() };
+    el.scrollTo({ left, behavior: 'smooth' });
   }, [autoScroll, looping]);
 
   // Discrete auto-advance: page forward one view on a timer (the same move an
