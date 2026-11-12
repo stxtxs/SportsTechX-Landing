@@ -38,6 +38,23 @@ function cardItems(track: HTMLElement): HTMLElement[] {
   return items.filter((el) => el.offsetWidth > 2);
 }
 
+/**
+ * Scroll position of the card `dir` steps from the one nearest the snap edge.
+ *
+ * Absolute, not a relative scrollBy: offsetLeft is a whole pixel while the real
+ * stride is often fractional (half-width cards), and Safari's snap settles where
+ * it is told, so relative steps carried the rounding forward until an
+ * auto-advancing rail sat visibly off its cards. `a`/`b` are the first two cards.
+ */
+function cardEdge(track: HTMLElement, a: HTMLElement, b: HTMLElement | undefined, dir: 1 | -1): number {
+  const ra = a.getBoundingClientRect();
+  const stride = b ? b.getBoundingClientRect().left - ra.left : ra.width;
+  const pad = parseFloat(getComputedStyle(track).scrollPaddingLeft) || 0;
+  // The scroll position at which the first card sits on the snap edge.
+  const base = track.scrollLeft + ra.left - (track.getBoundingClientRect().left + pad);
+  return base + (Math.round((track.scrollLeft - base) / stride) + dir) * stride;
+}
+
 export function Carousel({
   children,
   className,
@@ -203,7 +220,12 @@ export function Carousel({
       if (el.scrollLeft + delta < 0) el.scrollLeft += half;
       else if (el.scrollLeft + delta > el.scrollWidth - el.clientWidth) el.scrollLeft -= half;
     }
-    el.scrollBy({ left: delta, behavior: 'smooth' });
+    // The drift moves continuously and has no snap, so a relative step is right there.
+    if (autoScroll || !a) {
+      el.scrollBy({ left: delta, behavior: 'smooth' });
+      return;
+    }
+    el.scrollTo({ left: cardEdge(el, a, b, dir), behavior: 'smooth' });
   }, [autoScroll, looping]);
 
   // Discrete auto-advance: page forward one view on a timer (the same move an
