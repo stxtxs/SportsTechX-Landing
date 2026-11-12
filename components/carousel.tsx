@@ -263,6 +263,11 @@ export function Carousel({
   // Plain callbacks rather than a curried hold(true) factory: that factory was
   // *called* during render, so react-hooks/refs flagged it as a ref access in
   // the render pass even though the write itself only happens on the event.
+  // A hand on the track (drag, swipe, wheel) moves it somewhere a pending arrow
+  // target does not know about, so the next press starts from where it really is.
+  const dropHeading = useCallback(() => {
+    heading.current = null;
+  }, []);
   const pause = useCallback(() => {
     paused.current = true;
   }, []);
@@ -280,6 +285,8 @@ export function Carousel({
         ref={track}
         onScroll={sync}
         onPointerEnter={pause}
+        onPointerDown={dropHeading}
+        onWheel={dropHeading}
         onPointerLeave={resume}
         onFocusCapture={pause}
         onBlurCapture={resume}
