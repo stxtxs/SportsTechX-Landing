@@ -985,9 +985,12 @@ export const imprint: LegalDoc = {
       blocks: [
         { kind: 'p', text: 'Information in accordance with section 5 of the Telemedia Act (TMG):' },
         { kind: 'p', label: 'SportsTechX GmbH', text: '' },
-        { kind: 'p', text: 'Rohn Malhotra' },
         { kind: 'p', text: 'Liebigstraße 35, 10247 Berlin' },
         { kind: 'p', text: 'Germany' },
+        { kind: 'p', label: 'Company Registration#:', text: 'HRB 215063 B' },
+        { kind: 'p', label: 'VAT:', text: 'DE330056141' },
+        { kind: 'p', label: 'Tax ID:', text: '37/540/52103' },
+        { kind: 'p', label: 'Managing Director:', text: 'Rohn Malhotra' },
       ],
     },
     {
