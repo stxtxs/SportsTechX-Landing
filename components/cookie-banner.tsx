@@ -33,10 +33,11 @@ export function CookieBanner() {
   };
 
   return (
+    // ph-no-capture: the consent choice itself is never sent to analytics.
     <section
       role="region"
       aria-labelledby={titleId}
-      className="fixed inset-x-3 bottom-3 z-[55] rounded-[18px] border-[1.5px] border-nav-border bg-nav-bg px-4 py-3.5 shadow-nav md:right-5 md:bottom-5 md:left-auto md:w-[436px]"
+      className="ph-no-capture fixed inset-x-3 bottom-3 z-[55] rounded-[18px] border-[1.5px] border-nav-border bg-nav-bg px-4 py-3.5 shadow-nav md:right-5 md:bottom-5 md:left-auto md:w-[436px]"
     >
       <h2 id={titleId} className="tracked font-mono text-legal text-heading/50 uppercase dark:text-heading/45">
         Cookies
