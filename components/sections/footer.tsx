@@ -2,6 +2,7 @@ import type { CSSProperties } from 'react';
 import { BrandLogo } from '@/components/brand-logo';
 import { NewsletterForm } from '@/components/newsletter-form';
 import { SectorLink } from '@/components/sector-link';
+import { CookieSettingsLink } from '@/components/cookie-settings-link';
 import { footer, type FooterLink } from '@/lib/content';
 import vectors from '@/design/vectors.json';
 import { cn } from '@/lib/utils';
@@ -168,6 +169,8 @@ export function Footer() {
                 </a>
               </span>
             ))}
+            <span aria-hidden> · </span>
+            <CookieSettingsLink className="cursor-pointer transition-colors duration-[80ms] ease-out hover:text-black active:text-heading/50 dark:hover:text-white" />
           </p>
         </div>
       </div>

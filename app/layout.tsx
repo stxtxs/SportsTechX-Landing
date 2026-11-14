@@ -5,6 +5,7 @@ import { MobileMenuPanel, MobileMenuProvider, MobileMenuShell } from '@/componen
 import { NewsletterModal } from '@/components/newsletter-modal';
 import { EarlyAccessModal } from '@/components/early-access-modal';
 import { Analytics } from '@/components/analytics';
+import { CookieBanner } from '@/components/cookie-banner';
 import { NavBar } from '@/components/sections/nav-bar';
 import { bebasNeue, sans, spaceMono } from './fonts';
 import { Providers } from './providers';
@@ -120,7 +121,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               nav CTA via the stx:newsletter-open event. */}
           <NewsletterModal />
           <EarlyAccessModal />
-          {/* PostHog web analytics, cookieless. */}
+          <CookieBanner />
+          {/* PostHog web analytics, only after "Accept all" in the cookie banner. */}
           <Analytics />
         </Providers>
       </body>
