@@ -87,11 +87,12 @@ export const hero = {
   ] satisfies HeroPill[],
 };
 
+/** One-line labels; the stats row sets them in uppercase (components/sections/stats.tsx). */
 export const stats = [
-  { value: '10,000+', label: 'Companies\nTracked' },
-  { value: '2,500+', label: 'Investors\nMapped' },
-  { value: '$130B+', label: 'Deal Flow\nTracked' },
-  { value: '20,000+', label: 'Newsletter\nSubscribers' },
+  { value: '10,000+', label: 'Companies Tracked' },
+  { value: '2,500+', label: 'Investors Mapped' },
+  { value: '$130B+', label: 'Deal Flow Tracked' },
+  { value: '20,000+', label: 'Newsletter Subscribers' },
 ];
 
 export const trustedBy = {
