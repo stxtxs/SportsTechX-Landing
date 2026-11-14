@@ -1,14 +1,23 @@
 'use client';
 
+import type { PostHog } from 'posthog-js';
+import { CONSENT_CHANGE_EVENT, getConsent } from '@/lib/consent';
+
 /**
- * PostHog (EU Cloud) web analytics, in the same PostHog project as Atlas and
- * set up the way Atlas measures signed-out visitors (its lib/analytics.ts).
+ * PostHog (EU Cloud) web analytics, in the same PostHog project as Atlas,
+ * gated on the cookie banner (lib/consent.ts, components/cookie-banner.tsx).
  *
- * Consent, without a banner: visitors are tracked in MEMORY only. PostHog
- * writes no cookie and nothing to localStorage or sessionStorage, and nothing
- * survives the tab. The cost: a reload or a return visit counts as a new
- * visitor, so unique-visitor numbers run high and there is no "returning"
- * figure. Page views, sources, countries and top pages are unaffected.
+ * The rule: analytics loads only after "Accept all".
+ *  - No choice yet, or Decline: the PostHog SDK is never downloaded, nothing
+ *    is sent and nothing is stored.
+ *  - Accept all: the SDK loads and tracks with PostHog's normal cookie +
+ *    localStorage persistence, so returning visitors are recognised.
+ *  - Accept, then Decline later (Cookie Settings in the footer): capture stops
+ *    at once, PostHog drops to memory and its cookie and storage entries are
+ *    removed. No reload needed, in either direction. Events captured in the
+ *    few seconds before the Decline may still be in PostHog's send queue and
+ *    go out with its next batch. Clicks on the banner and on Cookie Settings
+ *    are never captured (`ph-no-capture`).
  *
  * Runs on the production hosts only, so previews and localhost send nothing.
  * Set NEXT_PUBLIC_POSTHOG_KEY to test on another host (it then also replaces
@@ -23,31 +32,92 @@
 const POSTHOG_KEY = process.env.NEXT_PUBLIC_POSTHOG_KEY || 'phc_yZdTpqxXqLt7Y437AqwdMgv9DCCLXc4u4NHACArbkzu9';
 const HOSTS = ['sportstechx.com', 'www.sportstechx.com'];
 
-let initialized = false;
+/** Mirrors the visitor's consent. Every event passes through it (before_send). */
+let allowed = false;
+let client: PostHog | null = null;
+let loading = false;
+let listening = false;
 
-export function initAnalytics(): void {
-  if (initialized) return;
-  if (!process.env.NEXT_PUBLIC_POSTHOG_KEY && !HOSTS.includes(window.location.hostname)) return;
-  initialized = true;
-  // Off the critical path: the SDK loads once the browser is idle.
-  const load = () => {
-    import('posthog-js')
-      .then(({ default: posthog }) => {
-        posthog.init(POSTHOG_KEY, {
-          api_host: 'https://eu.i.posthog.com',
-          ui_host: 'https://eu.posthog.com',
-          persistence: 'memory',
-          person_profiles: 'identified_only',
-          // Every route, client-side navigations too.
-          capture_pageview: 'history_change',
-          disable_surveys: true,
-          disable_session_recording: true,
-        });
-      })
-      .catch(() => {
-        /* analytics is best-effort; a blocked script must not break the site */
+/** Removes what PostHog stored in this browser for this project. */
+function clearStored(): void {
+  const prefix = `ph_${POSTHOG_KEY}_`;
+  try {
+    for (const store of [window.localStorage, window.sessionStorage]) {
+      for (const key of Object.keys(store)) {
+        if (key.startsWith(prefix)) store.removeItem(key);
+      }
+    }
+  } catch {
+    /* storage blocked: nothing was stored there */
+  }
+  // PostHog's cookie sits on the registrable domain, so clear every level.
+  const parts = window.location.hostname.split('.');
+  const domains = ['', ...parts.map((_, i) => `.${parts.slice(i).join('.')}`).filter((d) => d.split('.').length > 2)];
+  for (const cookie of document.cookie.split(';')) {
+    const name = cookie.split('=')[0].trim();
+    if (!name.startsWith(prefix)) continue;
+    for (const domain of domains) {
+      document.cookie = `${name}=; Max-Age=0; path=/${domain ? `; domain=${domain}` : ''}`;
+    }
+  }
+}
+
+function start(): void {
+  if (allowed) return;
+  allowed = true;
+  if (client) {
+    // Accepted again after a Decline on this page: pick up where we stopped.
+    client.set_config({ persistence: 'localStorage+cookie' });
+    client.capture('$pageview');
+    return;
+  }
+  if (loading) return;
+  loading = true;
+  import('posthog-js')
+    .then(({ default: posthog }) => {
+      posthog.init(POSTHOG_KEY, {
+        api_host: 'https://eu.i.posthog.com',
+        ui_host: 'https://eu.posthog.com',
+        // Consent was given, so start in memory only if it was withdrawn while the SDK was loading.
+        persistence: allowed ? 'localStorage+cookie' : 'memory',
+        person_profiles: 'identified_only',
+        // Every route, client-side navigations too.
+        capture_pageview: 'history_change',
+        disable_surveys: true,
+        disable_session_recording: true,
+        // The last gate: nothing leaves the browser while consent is not "accepted".
+        before_send: (event) => (allowed ? event : null),
       });
-  };
-  if ('requestIdleCallback' in window) window.requestIdleCallback(load, { timeout: 4000 });
-  else setTimeout(load, 1500);
+      client = posthog;
+    })
+    .catch(() => {
+      /* analytics is best-effort; a blocked script must not break the site */
+    })
+    .finally(() => {
+      loading = false;
+    });
+}
+
+function stop(): void {
+  if (!allowed) return;
+  allowed = false;
+  if (client) {
+    client.set_config({ persistence: 'memory' });
+    client.reset();
+  }
+  clearStored();
+}
+
+function sync(): void {
+  if (getConsent() === 'accepted') start();
+  else stop();
+}
+
+/** Call once on page load. Follows the consent choice from then on. */
+export function initAnalytics(): void {
+  if (listening) return;
+  if (!process.env.NEXT_PUBLIC_POSTHOG_KEY && !HOSTS.includes(window.location.hostname)) return;
+  listening = true;
+  window.addEventListener(CONSENT_CHANGE_EVENT, sync);
+  sync();
 }

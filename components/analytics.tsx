@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import { initAnalytics } from '@/lib/analytics';
 
-/** Starts PostHog once per page load. Renders nothing. See lib/analytics.ts. */
+/** Starts PostHog once the visitor has accepted analytics. Renders nothing. See lib/analytics.ts. */
 export function Analytics() {
   useEffect(() => {
     initAnalytics();
