@@ -593,6 +593,8 @@ export const footer = {
     // which is SportsTechX's terms, not the membership ones.
     { label: 'Playmakers Membership Terms', href: 'https://www.playmakers.sportstechx.com/terms' },
     { label: 'Imprint', href: '/imprint' },
+    // Reopens the analytics consent banner (components/analytics-consent.tsx).
+    { label: 'Cookie Settings', href: '#cookie-settings' },
   ],
 };
 
