@@ -347,6 +347,25 @@
   }
 }
 
+/* The announcement banner (components/announcement-bar.tsx). --announce-h is
+ * its height, which the fixed nav is offset by. These are first-paint guesses
+ * (one line on desktop, wrapped on a phone); the banner sets the real value
+ * once it renders. Closed (or none): no banner, no offset. */
+:root {
+  --announce-h: 46px;
+}
+@media (width < 40rem) {
+  :root {
+    --announce-h: 88px;
+  }
+}
+html[data-announce-off] {
+  --announce-h: 0px;
+}
+html[data-announce-off] .announce {
+  display: none;
+}
+
 @utility container-page {
   width: 100%;
   max-width: calc(var(--content) + 2 * var(--gutter));
