@@ -62,12 +62,11 @@ export const announcement: {
   cta: string;
   href: string;
 } | null = {
-  id: 'football-tech-business-report-2027',
+  id: 'football-tech-business-report-2026',
   label: 'New Report Alert!',
-  text: 'Our Football Tech & Business Report 2027 is out now.',
+  text: 'Our Football Tech & Business Report 2026 is out now.',
   cta: 'Access on Atlas →',
-  // The newest football report on Atlas is ftabr26 (Football Tech & Business
-  // Report 2026); switch to the 2027 report's slug once it is on Atlas.
+  // The report's page on Atlas (slug ftabr26).
   href: 'https://www.atlas.sportstechx.com/reports/ftabr26',
 };
 
