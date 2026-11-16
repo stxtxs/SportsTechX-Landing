@@ -20,6 +20,9 @@ import { cn } from '@/lib/utils';
 /** The artboard's 16 gap above the nav, which `top-4` gives when it is fixed. */
 const NAV_INSET = 16;
 
+/** The announcement banner's height while it shows (0 once closed), from the var it keeps on <html>. */
+const bannerHeight = () => parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--announce-h')) || 0;
+
 const subscribe = (onChange: () => void) => {
   window.addEventListener('scroll', onChange, { passive: true });
   return () => window.removeEventListener('scroll', onChange);
@@ -42,7 +45,9 @@ export function NavBar() {
   const [menu, setMenu] = useState(false);
   const scrolled = useSyncExternalStore(
     subscribe,
-    () => window.scrollY > 16,
+    // Docks once the page has scrolled past the announcement banner too, so the
+    // glass band never sits over a banner that is still on screen.
+    () => window.scrollY > 16 + bannerHeight(),
     () => false // the server cannot know the scroll position
   );
 
@@ -55,7 +60,8 @@ export function NavBar() {
       // + NAV_INSET because the inline top overrides `top-4`: pinning to the
       // bare offset dropped the 16 gap and the close button jumped up on open,
       // out of line with the drawer's logo. The artboard sits it at 21.62.
-      style={drawerOpen ? { top: lockedY + NAV_INSET } : undefined}
+      // While the banner is still on screen at that offset, stay below it.
+      style={drawerOpen ? { top: lockedY + NAV_INSET + Math.max(0, bannerHeight() - lockedY) } : undefined}
       className={cn(
         'inset-x-0 z-50 transition-[top,padding,background-color,box-shadow] duration-300',
         drawerOpen ? 'absolute' : 'fixed',
@@ -69,7 +75,8 @@ export function NavBar() {
           // (92 band, 58 nav, 54 logo) are deliberately not followed: they were
           // tried and read as too heavy, so the nav keeps its own 52.
           ? 'top-0 bg-linear-to-b from-[var(--nav-scrim-from)] to-[var(--nav-scrim-to)] py-3 backdrop-blur-[11.6px]'
-          : 'top-4 lg:top-6'
+          : // Below the announcement banner while it shows (--announce-h, 0 once closed).
+            'top-[calc(var(--announce-h,0px)+1rem)] lg:top-[calc(var(--announce-h,0px)+1.5rem)]'
       )}
     >
       <div className="container-page flex items-center justify-between">

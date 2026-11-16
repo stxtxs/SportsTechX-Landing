@@ -5,6 +5,7 @@ import { MobileMenuPanel, MobileMenuProvider, MobileMenuShell } from '@/componen
 import { NewsletterModal } from '@/components/newsletter-modal';
 import { EarlyAccessModal } from '@/components/early-access-modal';
 import { Analytics } from '@/components/analytics';
+import { AnnouncementBar, ANNOUNCE_PREPAINT } from '@/components/announcement-bar';
 import { CookieBanner } from '@/components/cookie-banner';
 import { NavBar } from '@/components/sections/nav-bar';
 import { bebasNeue, sans, spaceMono } from './fonts';
@@ -106,6 +107,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           // eslint-disable-next-line react/no-danger -- a JSON-LD blob we author
           dangerouslySetInnerHTML={{ __html: JSON.stringify(ORG_JSONLD) }}
         />
+        {/* Before paint: an announcement this visitor already closed stays hidden (no flash). */}
+        <script dangerouslySetInnerHTML={{ __html: ANNOUNCE_PREPAINT }} />
       </head>
       <body>
         <Providers>
@@ -115,7 +118,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <MobileMenuPanel />
             {/* The nav goes in as its own prop: the drawer dims the page
                 behind it, and the close button must stay crisp. */}
-            <MobileMenuShell nav={<NavBar />}>{children}</MobileMenuShell>
+            <MobileMenuShell nav={<NavBar />}>
+              {/* Top of every page until closed; the nav sits below it. */}
+              <AnnouncementBar />
+              {children}
+            </MobileMenuShell>
           </MobileMenuProvider>
           {/* One shared newsletter dialog for the whole site; opened by the
               nav CTA via the stx:newsletter-open event. */}

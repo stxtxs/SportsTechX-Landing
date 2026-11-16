@@ -49,6 +49,27 @@ import imgb8758def93ad from '@/public/images/b8758def93ad.webp';
 import img198f122078d1 from '@/public/images/198f122078d1.webp';
 import imgdd889ac2c460 from '@/public/images/dd889ac2c460.webp';
 
+/**
+ * The banner across the top of every page (components/announcement-bar.tsx),
+ * shown until the visitor closes it. `id` is what "closed" is remembered
+ * against: give the next announcement a new id and it shows again, even to
+ * people who closed this one. Set `announcement` to null to switch it off.
+ */
+export const announcement: {
+  id: string;
+  label: string;
+  text: string;
+  cta: string;
+  href: string;
+} | null = {
+  id: 'football-tech-business-report-2026',
+  label: 'New Report Alert!',
+  text: 'Our Football Tech & Business Report 2026 is out now.',
+  cta: 'Access on Atlas →',
+  // The report's page on Atlas (slug ftabr26).
+  href: 'https://www.atlas.sportstechx.com/reports/ftabr26',
+};
+
 export const nav = {
   links: [
     { label: 'SOLUTIONS', href: '/#solutions' },
@@ -87,11 +108,12 @@ export const hero = {
   ] satisfies HeroPill[],
 };
 
+/** One-line labels; the stats row sets them in uppercase (components/sections/stats.tsx). */
 export const stats = [
-  { value: '10,000+', label: 'Companies\nTracked' },
-  { value: '2,500+', label: 'Investors\nMapped' },
-  { value: '$130B+', label: 'Deal Flow\nTracked' },
-  { value: '20,000+', label: 'Newsletter\nSubscribers' },
+  { value: '10,000+', label: 'Companies Tracked' },
+  { value: '2,500+', label: 'Investors Mapped' },
+  { value: '$130B+', label: 'Deal Flow Tracked' },
+  { value: '20,000+', label: 'Newsletter Subscribers' },
 ];
 
 export const trustedBy = {
