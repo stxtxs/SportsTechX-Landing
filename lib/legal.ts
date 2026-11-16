@@ -507,7 +507,14 @@ export const privacyPolicy: LegalDoc = {
       level: 3,
       heading: 'Website Analytics',
       blocks: [
-        { kind: 'p', text: 'We use Google Analytics to analyze website usage. This service uses cookies to collect anonymous information about how visitors use our site. The information generated about your use of the website is transmitted to and stored by Google on servers in the United States.' },
+        { kind: 'p', text: 'We use PostHog to understand how our website and the SportsTechX Atlas platform are used and to improve them. We do not use Google Analytics. PostHog is provided by PostHog Inc., 2261 Market St., #4008, San Francisco, CA 94114, USA, and acts as our processor under a data processing agreement pursuant to Art. 28 GDPR. We use PostHog\'s EU Cloud, so analytics data is stored on servers in the European Union (Frankfurt, Germany).' },
+        { kind: 'p', text: 'Data processed: pages viewed, clicks and other interactions, referring page, approximate location derived from your IP address, browser, device and operating system information, and timestamps. For signed-in Atlas users, this data is linked to your account identifier.' },
+        { kind: 'p', label: 'On our website (sportstechx.com):', text: 'PostHog is loaded only if you click "Accept all" in our cookie banner. If you decline or make no choice, the PostHog script is not loaded, and nothing is sent to PostHog or stored on your device for analytics. With your consent, PostHog stores an identifier in a cookie and in local storage so that returning visits can be recognised. We do not record sessions on our website. The legal basis is your consent (§ 25(1) TDDDG, Art. 6(1)(a) GDPR). You can change or withdraw your choice at any time via "Cookie settings" in the website footer; PostHog\'s cookies and stored data are then removed immediately.' },
+        { kind: 'p', label: 'On the Atlas platform, before you sign in:', text: 'Usage is measured without cookies, local storage or any other information stored on or read from your device; the data is held only in your browser\'s memory for the current tab and cannot be used to recognise you on a later visit. The legal basis is our legitimate interest in understanding and improving our platform (Art. 6(1)(f) GDPR).' },
+        { kind: 'p', label: 'On the Atlas platform, once you sign in:', text: 'PostHog stores an identifier in a cookie and in local storage so we can link your usage to your account, and records your sessions (session replay) to help us find and fix usability problems. All text you type into form fields is masked and never recorded. Storing and reading this information on your device is based on the consent you give when creating your account (§ 25(1) TDDDG, Art. 6(1)(a) GDPR). You can withdraw this consent at any time with effect for the future by emailing hello@sportstechx.com; withdrawal does not affect the lawfulness of processing before it. Signing out removes the analytics identifier from persistent storage.' },
+        { kind: 'p', label: 'Retention:', text: 'Session recordings are deleted automatically after 30 days. Analytics events are deleted automatically after 12 months at the latest.' },
+        { kind: 'p', label: 'Transfers:', text: 'Because PostHog Inc. is based in the USA, access to data from outside the EEA cannot be fully excluded. Any such transfer is safeguarded by the EU Standard Contractual Clauses (Art. 46(2)(c) GDPR). For more information, see PostHog\'s privacy policy at https://posthog.com/privacy.' },
+        { kind: 'p', text: 'You can also prevent analytics at any time by using a browser extension that blocks tracking scripts; our website and platform remain fully usable.' },
       ],
     },
     {
@@ -736,7 +743,7 @@ export const privacyPolicy: LegalDoc = {
           items: [
             { text: 'Payment processors (Stripe) for membership fee transactions' },
             { text: 'Database and hosting providers (Supabase)' },
-            { text: 'Analytics services (Google Analytics, Mixpanel)' },
+            { text: 'Product analytics (PostHog, EU-hosted)' },
             { text: 'Customer support platforms (Intercom)' },
             { text: 'Customer relationship management (Attio)' },
             { text: 'Company logo enrichment (Clearbit)' },
@@ -835,8 +842,10 @@ export const privacyPolicy: LegalDoc = {
       level: 2,
       heading: 'Cookies',
       blocks: [
-        { kind: 'p', text: 'Our website uses cookies to improve your browsing experience. Cookies are small text files that are stored on your device when you visit a website. You can configure your browser to refuse cookies or to indicate when cookies are being sent.' },
-        { kind: 'p', text: 'Essential cookies are necessary for the website to function properly, while analytics cookies help us understand how visitors interact with our website.' },
+        { kind: 'p', text: 'Cookies are small text files stored on your device when you visit a website; local storage works similarly. We use them only as described below.' },
+        { kind: 'p', label: 'Strictly necessary:', text: 'We store your cookie choice in a first-party cookie (stx_consent) for six months, after which we ask again; we remember in local storage when you have dismissed an announcement banner; and when you sign in to Atlas, we store an authentication session (provided by our hosting and database provider, Supabase) so that you stay logged in. These are strictly necessary to provide the service you requested and do not require consent (§ 25(2) no. 2 TDDDG); the related processing is based on Art. 6(1)(b) and (f) GDPR. The Atlas session is removed when you sign out or it expires.' },
+        { kind: 'p', label: 'Analytics:', text: 'PostHog stores an identifier in a cookie and in local storage only on our website after you click "Accept all", and on the Atlas platform only once you are signed in (see "Website Analytics" above).' },
+        { kind: 'p', text: 'We do not use advertising or cross-site tracking cookies. You can delete cookies or configure your browser to refuse them at any time; if you block strictly necessary cookies, you will not be able to sign in.' },
       ],
     },
     {
@@ -853,9 +862,12 @@ export const privacyPolicy: LegalDoc = {
             { text: 'Right to restriction of processing' },
             { text: 'Right to data portability' },
             { text: 'Right to object to processing' },
-            { text: 'Right to withdraw consent' },
+            { text: 'Right to withdraw consent at any time, with effect for the future (Art. 7(3) GDPR)' },
+            { text: 'Right to lodge a complaint with a supervisory authority (Art. 77 GDPR)' },
           ],
         },
+        { kind: 'p', label: 'Right to object (Art. 21 GDPR):', text: 'Where we process your data on the basis of our legitimate interests (Art. 6(1)(f) GDPR), you may object at any time on grounds relating to your particular situation. Where we process your data for direct marketing, you may object at any time without giving reasons.' },
+        { kind: 'p', text: 'To exercise any of these rights, contact us at hello@sportstechx.com. The supervisory authority responsible for us is the Berlin Commissioner for Data Protection and Freedom of Information (Berliner Beauftragte für Datenschutz und Informationsfreiheit, Alt-Moabit 59-61, 10555 Berlin, www.datenschutz-berlin.de); you may also contact the authority in your EU country of residence or work.' },
       ],
     },
     {
@@ -944,7 +956,7 @@ export const privacyPolicy: LegalDoc = {
       heading: 'Third-Party Services',
       blocks: [
         { kind: 'p', text: 'Our website and services may contain links to third-party websites or services. We are not responsible for the privacy practices of these external sites. We encourage you to read the privacy policies of any third-party sites you visit.' },
-        { kind: 'p', text: 'We use third-party services including Google Analytics for website analytics, email service providers for newsletter distribution, social media platforms for content sharing, payment processors for fee processing, communication platforms for member community features, and event management platforms for organizing member events.' },
+        { kind: 'p', text: 'We use third-party services including PostHog for website and product analytics, email service providers for newsletter distribution, social media platforms for content sharing, payment processors for fee processing, communication platforms for member community features, and event management platforms for organizing member events.' },
         { kind: 'p', text: 'For benchmark surveys, we use Fillout as our survey platform provider. Fillout processes survey response data on our behalf under a data processing agreement and in compliance with GDPR.' },
       ],
     },
