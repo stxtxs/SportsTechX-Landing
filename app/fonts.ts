@@ -1,24 +1,30 @@
-import { Bebas_Neue, Space_Mono } from 'next/font/google';
 import localFont from 'next/font/local';
+
+/* Self-hosted latin woff2s (next/font/local), NOT next/font/google: the Google loader
+   downloads from fonts.gstatic.com AT BUILD TIME and that fetch flakes on cold Vercel
+   builds, failing the deploy (it broke the Atlas client and admin). Re-download from the
+   Google Fonts CSS2 API, latin block, if a face ever needs refreshing. */
 
 /**
  * The design uses four families (counts are text nodes in the .fig):
  *   New Frank  276   body + UI                — commercial, see the note below
  *   CommitMono  98   buttons, pills, labels   — @fontsource/commit-mono, imported in layout.tsx
- *   Bebas Neue  70   all display headlines    — Google
- *   Space Mono  28   eyebrows, attributions   — Google
+ *   Bebas Neue  70   all display headlines    — Google Fonts, self-hosted
+ *   Space Mono  28   eyebrows, attributions   — Google Fonts, self-hosted
  */
 
-export const bebasNeue = Bebas_Neue({
+export const bebasNeue = localFont({
+  src: './fonts/bebas-neue-400.woff2',
   weight: '400',
-  subsets: ['latin'],
   display: 'swap',
   variable: '--font-bebas-neue',
 });
 
-export const spaceMono = Space_Mono({
-  weight: ['400', '700'],
-  subsets: ['latin'],
+export const spaceMono = localFont({
+  src: [
+    { path: './fonts/space-mono-400.woff2', weight: '400', style: 'normal' },
+    { path: './fonts/space-mono-700.woff2', weight: '700', style: 'normal' },
+  ],
   display: 'swap',
   variable: '--font-space-mono',
 });
